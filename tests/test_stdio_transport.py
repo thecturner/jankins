@@ -125,7 +125,13 @@ class TestStdioTransport:
             response = await handle_stdio_request(mcp_server, request)
 
             assert response["jsonrpc"] == "2.0"
-            assert "result" in response or "error" in response
+            assert "result" in response
+            # Verify MCP content format
+            assert "content" in response["result"]
+            assert isinstance(response["result"]["content"], list)
+            assert len(response["result"]["content"]) > 0
+            assert response["result"]["content"][0]["type"] == "text"
+            assert "test_user" in response["result"]["content"][0]["text"]
 
     @pytest.mark.asyncio
     async def test_error_handling(self, mcp_server):
