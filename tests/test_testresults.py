@@ -4,18 +4,18 @@ import pytest
 
 from jankins.jenkins.testresults import (
     TestReport as TestReportModel,
-    TestResultParserImpl as TestResultParserImplImpl,
-    TestSuiteModel as TestSuiteModelModel,
+    TestResultParser as TestResultParserImpl,
+    TestSuite as TestSuiteModel,
 )
 
 
 @pytest.mark.unit
-class TestTestResultParserImpl:
+class TestTestResultParser:
     """Test test result parser functionality."""
 
     def test_parse_test_report(self, sample_test_report):
         """Test parsing test report."""
-        parser = TestResultParserImplImpl()
+        parser = TestResultParserImpl()
         report = parser.parse_test_report(sample_test_report)
 
         assert isinstance(report, TestReportModel)
