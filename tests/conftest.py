@@ -1,14 +1,14 @@
 """Pytest fixtures for jankins tests."""
 
-import pytest
-from unittest.mock import Mock, AsyncMock, MagicMock
-from typing import Dict, Any
-import json
+from typing import Any
+from unittest.mock import AsyncMock, MagicMock, Mock
 
+import pytest
+
+from jankins.cache import ResponseCache
 from jankins.config import JankinsConfig
 from jankins.jenkins import JenkinsAdapter
 from jankins.mcp import MCPServer
-from jankins.cache import ResponseCache
 from jankins.metrics import MetricsCollector
 
 
@@ -88,7 +88,7 @@ def mock_jenkins_client():
 
 
 @pytest.fixture
-def sample_build_data() -> Dict[str, Any]:
+def sample_build_data() -> dict[str, Any]:
     """Sample build data for testing."""
     return {
         "number": 42,
@@ -109,7 +109,7 @@ def sample_build_data() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_test_report() -> Dict[str, Any]:
+def sample_test_report() -> dict[str, Any]:
     """Sample test report data for testing."""
     return {
         "duration": 15.5,

@@ -1,15 +1,14 @@
 """SCM and pipeline-related MCP tools."""
 
+import logging
 import time
 import uuid
-import logging
-from typing import Dict, Any
+from typing import Any
 
-from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
+from ..errors import InvalidParamsError
 from ..formatters import OutputFormat, TokenAwareFormatter
 from ..logging_utils import RequestLogger
-from ..errors import InvalidParamsError
-
+from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ def register_scm_tools(mcp_server, jenkins_adapter, config):
     """Register SCM and pipeline tools."""
 
     # get_job_scm
-    async def get_job_scm_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_job_scm_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -61,7 +60,7 @@ def register_scm_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # get_build_scm
-    async def get_build_scm_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_build_scm_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 

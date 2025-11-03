@@ -1,7 +1,9 @@
 """Tests for response caching."""
 
-import pytest
 import time
+
+import pytest
+
 from jankins.cache import ResponseCache
 
 

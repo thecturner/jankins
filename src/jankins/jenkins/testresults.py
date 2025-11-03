@@ -4,9 +4,8 @@ Parses test reports from Jenkins builds to provide detailed test analysis.
 """
 
 import logging
-import xml.etree.ElementTree as ET
-from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +17,9 @@ class TestCase:
     class_name: str
     duration: float
     status: str  # PASSED, FAILED, SKIPPED, ERROR
-    error_message: Optional[str] = None
-    error_type: Optional[str] = None
-    error_stacktrace: Optional[str] = None
+    error_message: str | None = None
+    error_type: str | None = None
+    error_stacktrace: str | None = None
 
 
 @dataclass
@@ -32,7 +31,7 @@ class TestSuite:
     errors: int
     skipped: int
     duration: float
-    test_cases: List[TestCase]
+    test_cases: list[TestCase]
 
 
 @dataclass
@@ -44,7 +43,7 @@ class TestReport:
     skipped: int
     errors: int
     duration: float
-    suites: List[TestSuite]
+    suites: list[TestSuite]
 
     @property
     def pass_rate(self) -> float:
@@ -67,7 +66,7 @@ class TestResultParser:
 
     def get_test_report(
         self, job_name: str, build_number: int
-    ) -> Optional[TestReport]:
+    ) -> TestReport | None:
         """Get test report from Jenkins test results API.
 
         Args:
@@ -118,7 +117,7 @@ class TestResultParser:
 
     def get_detailed_test_report(
         self, job_name: str, build_number: int
-    ) -> Optional[TestReport]:
+    ) -> TestReport | None:
         """Get detailed test report with individual test cases.
 
         Args:
@@ -210,7 +209,7 @@ class TestResultParser:
 
     def get_failed_tests(
         self, job_name: str, build_number: int, limit: int = 10
-    ) -> List[TestCase]:
+    ) -> list[TestCase]:
         """Get only failed test cases from a build.
 
         Args:
@@ -237,7 +236,7 @@ class TestResultParser:
 
     def compare_test_results(
         self, job_name: str, base_build: int, head_build: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compare test results between two builds.
 
         Args:
@@ -290,8 +289,8 @@ class TestResultParser:
         }
 
     def get_flaky_tests(
-        self, job_name: str, build_numbers: List[int]
-    ) -> List[Dict[str, Any]]:
+        self, job_name: str, build_numbers: list[int]
+    ) -> list[dict[str, Any]]:
         """Identify flaky tests across multiple builds.
 
         A test is considered flaky if it has inconsistent results
@@ -305,7 +304,7 @@ class TestResultParser:
             List of flaky tests with failure rate
         """
         # Track test results across builds
-        test_results: Dict[str, List[str]] = {}
+        test_results: dict[str, list[str]] = {}
 
         for build_num in build_numbers:
             report = self.get_detailed_test_report(job_name, build_num)

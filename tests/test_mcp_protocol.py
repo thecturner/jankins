@@ -1,14 +1,15 @@
 """Test MCP protocol implementation."""
 
 import pytest
+
+from jankins.errors import InvalidParamsError
 from jankins.mcp.protocol import (
+    MCP_VERSION,
     MCPServer,
     Tool,
     ToolParameter,
     ToolParameterType,
-    MCP_VERSION,
 )
-from jankins.errors import InvalidParamsError
 
 
 def test_mcp_server_creation():

@@ -5,10 +5,9 @@ multiple tool calls with helpful context.
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Any
 
 from ..mcp.protocol import Prompt, ToolParameter, ToolParameterType
-
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ def register_prompts(mcp_server, jenkins_adapter, config):
     """Register prompt templates with the MCP server."""
 
     # investigate_failure
-    async def investigate_failure_handler(args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def investigate_failure_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
         """Prompt for investigating a failing pipeline."""
         job = args["job"]
         build = args.get("build", "last")
@@ -61,7 +60,7 @@ Use the following tools:
     ))
 
     # tail_errors
-    async def tail_errors_handler(args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def tail_errors_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
         """Prompt for tailing only warnings and errors."""
         job = args["job"]
         build = args.get("build", "last")
@@ -100,7 +99,7 @@ Focus on the most recent errors at the end of the log.
     ))
 
     # compare_builds
-    async def compare_builds_handler(args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def compare_builds_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
         """Prompt for comparing two builds."""
         job = args["job"]
         base = args["base"]
@@ -142,7 +141,7 @@ Summarize key differences and potential causes of any new failures.
     ))
 
     # check_job_health
-    async def check_job_health_handler(args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def check_job_health_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
         """Prompt for checking job health."""
         job = args["job"]
 
@@ -182,7 +181,7 @@ Use:
     ))
 
     # trigger_with_params
-    async def trigger_with_params_handler(args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def trigger_with_params_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
         """Prompt for triggering a parameterized build."""
         job = args["job"]
         params_desc = args.get("parameters", "default parameters")
@@ -224,7 +223,7 @@ Use:
     ))
 
     # search_logs
-    async def search_logs_handler(args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def search_logs_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
         """Prompt for searching logs for a pattern."""
         job = args["job"]
         pattern = args["pattern"]

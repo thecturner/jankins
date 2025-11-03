@@ -1,11 +1,11 @@
 """MCP tools for Jenkins operations."""
 
-from .jobs import register_job_tools
+from .advanced import register_advanced_tools
 from .builds import register_build_tools
+from .health import register_health_tools
+from .jobs import register_job_tools
 from .logs import register_log_tools
 from .scm import register_scm_tools
-from .health import register_health_tools
-from .advanced import register_advanced_tools
 from .tests import register_test_tools
 
 

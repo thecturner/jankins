@@ -6,17 +6,16 @@ for MCP protocol communication.
 
 import json
 import logging
-from typing import Optional
+
+from sse_starlette.sse import EventSourceResponse
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import JSONResponse, Response, StreamingResponse
+from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
-from sse_starlette.sse import EventSourceResponse
 
-from .protocol import MCPServer
 from ..config import JankinsConfig
 from ..errors import JankinsError
-
+from .protocol import MCPServer
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +101,7 @@ async def handle_mcp_request(request: Request) -> Response:
 
         return JSONResponse(response)
 
-    except Exception as e:
+    except Exception:
         logger.exception("Unexpected error handling MCP request")
         return JSONResponse(
             {

@@ -1,8 +1,9 @@
 """Tests for build log analyzers."""
 
 import pytest
-from jankins.analyzers.maven import MavenAnalyzer
+
 from jankins.analyzers.gradle import GradleAnalyzer
+from jankins.analyzers.maven import MavenAnalyzer
 from jankins.analyzers.npm import NPMAnalyzer
 
 

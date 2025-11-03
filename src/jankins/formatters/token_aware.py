@@ -5,11 +5,11 @@ maintaining clarity and usefulness.
 """
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import tiktoken
 
-from .base import OutputFormat, compact_dict, format_duration, format_timestamp
-
+from .base import OutputFormat, format_duration, format_timestamp
 
 # Token estimator (using cl100k_base which is close to Claude's tokenizer)
 try:
@@ -35,10 +35,10 @@ class TokenAwareFormatter:
 
     @staticmethod
     def format_job_list(
-        jobs: List[Dict[str, Any]],
+        jobs: list[dict[str, Any]],
         format: OutputFormat = OutputFormat.SUMMARY,
         limit: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format job list with token awareness.
 
         Args:
@@ -79,9 +79,9 @@ class TokenAwareFormatter:
 
     @staticmethod
     def format_build(
-        build: Dict[str, Any],
+        build: dict[str, Any],
         format: OutputFormat = OutputFormat.SUMMARY,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format build information.
 
         Args:
@@ -116,9 +116,9 @@ class TokenAwareFormatter:
     @staticmethod
     def format_log_response(
         summary: Any,  # LogSummary
-        chunks: Optional[List[Dict[str, Any]]] = None,
+        chunks: list[dict[str, Any]] | None = None,
         format: OutputFormat = OutputFormat.SUMMARY,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format log retrieval response.
 
         Args:
@@ -167,13 +167,13 @@ class TokenAwareFormatter:
 
     @staticmethod
     def format_triage(
-        hypotheses: List[str],
-        top_errors: List[str],
-        failing_stages: List[str],
-        suspect_changes: List[Dict[str, Any]],
-        next_steps: List[str],
+        hypotheses: list[str],
+        top_errors: list[str],
+        failing_stages: list[str],
+        suspect_changes: list[dict[str, Any]],
+        next_steps: list[str],
         format: OutputFormat = OutputFormat.SUMMARY,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format failure triage response.
 
         Args:
@@ -206,13 +206,13 @@ class TokenAwareFormatter:
 
     @staticmethod
     def format_comparison(
-        base_build: Dict[str, Any],
-        head_build: Dict[str, Any],
+        base_build: dict[str, Any],
+        head_build: dict[str, Any],
         duration_delta: int,
-        stage_diffs: List[Dict[str, Any]],
-        test_diffs: Optional[Dict[str, Any]] = None,
+        stage_diffs: list[dict[str, Any]],
+        test_diffs: dict[str, Any] | None = None,
         format: OutputFormat = OutputFormat.DIFF,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format build comparison.
 
         Args:
@@ -259,11 +259,11 @@ class TokenAwareFormatter:
 
     @staticmethod
     def add_metadata(
-        data: Dict[str, Any],
+        data: dict[str, Any],
         correlation_id: str,
         took_ms: int,
         format_used: OutputFormat,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Add standard metadata to response.
 
         Args:

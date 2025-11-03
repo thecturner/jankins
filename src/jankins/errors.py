@@ -4,7 +4,6 @@ Maps failures to MCP/JSON-RPC error codes with remediation hints.
 Follows best practices for error handling in MCP servers.
 """
 
-from typing import Optional, List
 import uuid
 from enum import Enum
 
@@ -39,10 +38,10 @@ class JankinsError(Exception):
         self,
         message: str,
         code: ErrorCode = ErrorCode.INTERNAL_ERROR,
-        hint: Optional[str] = None,
-        next_actions: Optional[List[str]] = None,
-        correlation_id: Optional[str] = None,
-        docs_url: Optional[str] = None,
+        hint: str | None = None,
+        next_actions: list[str] | None = None,
+        correlation_id: str | None = None,
+        docs_url: str | None = None,
     ):
         super().__init__(message)
         self.message = message
@@ -146,7 +145,7 @@ class UpstreamError(JankinsError):
     def __init__(
         self,
         message: str,
-        status_code: Optional[int] = None,
+        status_code: int | None = None,
         **kwargs
     ):
         self.status_code = status_code

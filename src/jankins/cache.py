@@ -4,13 +4,14 @@ Caches responses to reduce load on Jenkins and improve performance for
 frequently requested resources like job info and build data.
 """
 
-import time
-import logging
 import hashlib
 import json
-from typing import Dict, Any, Optional, Callable
+import logging
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from threading import Lock
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +38,14 @@ class ResponseCache:
         """
         self.ttl = ttl
         self.max_entries = max_entries
-        self._cache: Dict[str, CacheEntry] = {}
+        self._cache: dict[str, CacheEntry] = {}
         self._lock = Lock()
         self._hits = 0
         self._misses = 0
 
         logger.info(f"Response cache initialized: TTL={ttl}s, max_entries={max_entries}")
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get cached value if available and not expired.
 
         Args:
@@ -110,7 +111,7 @@ class ResponseCache:
         oldest_key = min(self._cache.keys(), key=lambda k: self._cache[k].expires_at)
         del self._cache[oldest_key]
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics.
 
         Returns:
@@ -133,7 +134,7 @@ class ResponseCache:
 
 def cache_key_from_args(
     tool_name: str,
-    args: Dict[str, Any],
+    args: dict[str, Any],
     exclude_keys: list = None
 ) -> str:
     """Generate cache key from tool name and arguments.
@@ -190,7 +191,7 @@ def cached_tool(
     ]
 
     def decorator(handler: Callable):
-        async def wrapper(args: Dict[str, Any]) -> Dict[str, Any]:
+        async def wrapper(args: dict[str, Any]) -> dict[str, Any]:
             # Extract tool name (assuming it's in the function name or context)
             tool_name = handler.__name__.replace("_handler", "")
 
@@ -223,7 +224,7 @@ def cached_tool(
 
 
 # Global cache instance
-_response_cache: Optional[ResponseCache] = None
+_response_cache: ResponseCache | None = None
 
 
 def get_response_cache(ttl: int = 300, max_entries: int = 1000) -> ResponseCache:

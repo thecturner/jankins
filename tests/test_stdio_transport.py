@@ -1,11 +1,11 @@
 """Tests for stdio transport."""
 
-import pytest
 import json
-import asyncio
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from jankins.mcp.stdio_transport import handle_stdio_request, write_response
-from jankins.mcp.protocol import MCPServer
 
 
 @pytest.mark.unit

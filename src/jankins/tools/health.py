@@ -1,14 +1,13 @@
 """Health and auth-related MCP tools."""
 
+import logging
 import time
 import uuid
-import logging
-from typing import Dict, Any
+from typing import Any
 
-from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
 from ..formatters import OutputFormat, TokenAwareFormatter
 from ..logging_utils import RequestLogger
-
+from ..mcp.protocol import Tool
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ def register_health_tools(mcp_server, jenkins_adapter, config):
     """Register health and auth tools."""
 
     # whoami
-    async def whoami_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def whoami_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -44,7 +43,7 @@ def register_health_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # get_status
-    async def get_status_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_status_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -76,7 +75,7 @@ def register_health_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # summarize_queue
-    async def summarize_queue_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def summarize_queue_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 

@@ -1,8 +1,8 @@
 """NPM/Yarn build log analyzer."""
 
 import re
-from typing import List
-from .base import LogAnalyzer, AnalysisResult
+
+from .base import AnalysisResult, LogAnalyzer
 
 
 class NpmAnalyzer(LogAnalyzer):
@@ -13,7 +13,7 @@ class NpmAnalyzer(LogAnalyzer):
         return "npm"
 
     @property
-    def detection_patterns(self) -> List[str]:
+    def detection_patterns(self) -> list[str]:
         return [
             r"npm (install|run|test|build)",
             r"yarn (install|run|test|build)",
@@ -100,7 +100,7 @@ class NpmAnalyzer(LogAnalyzer):
 
         return result
 
-    def _parse_npm_issues(self, log_content: str) -> List[dict]:
+    def _parse_npm_issues(self, log_content: str) -> list[dict]:
         """Parse NPM-specific issues from log.
 
         Args:
@@ -169,7 +169,7 @@ class NpmAnalyzer(LogAnalyzer):
 
         return issues
 
-    def _generate_recommendations(self, result: AnalysisResult) -> List[str]:
+    def _generate_recommendations(self, result: AnalysisResult) -> list[str]:
         """Generate recommendations based on analysis.
 
         Args:

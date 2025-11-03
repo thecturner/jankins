@@ -1,8 +1,8 @@
 """Gradle build log analyzer."""
 
 import re
-from typing import List
-from .base import LogAnalyzer, AnalysisResult
+
+from .base import AnalysisResult, LogAnalyzer
 
 
 class GradleAnalyzer(LogAnalyzer):
@@ -13,7 +13,7 @@ class GradleAnalyzer(LogAnalyzer):
         return "gradle"
 
     @property
-    def detection_patterns(self) -> List[str]:
+    def detection_patterns(self) -> list[str]:
         return [
             r"Gradle \d+\.\d+",
             r"gradle (build|test|assemble|clean)",
@@ -84,7 +84,7 @@ class GradleAnalyzer(LogAnalyzer):
 
         return result
 
-    def _parse_gradle_issues(self, log_content: str) -> List[dict]:
+    def _parse_gradle_issues(self, log_content: str) -> list[dict]:
         """Parse Gradle-specific issues from log.
 
         Args:
@@ -149,7 +149,7 @@ class GradleAnalyzer(LogAnalyzer):
 
         return issues
 
-    def _generate_recommendations(self, result: AnalysisResult) -> List[str]:
+    def _generate_recommendations(self, result: AnalysisResult) -> list[str]:
         """Generate recommendations based on analysis.
 
         Args:
