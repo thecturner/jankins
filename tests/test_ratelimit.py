@@ -25,7 +25,7 @@ class TestRateLimitBucket:
         assert bucket.tokens == 7
 
         assert bucket.consume(7) is True
-        assert bucket.tokens == 0
+        assert bucket.tokens < 0.001  # Allow for floating point precision
 
     def test_consume_insufficient_tokens(self):
         """Test consumption with insufficient tokens."""
@@ -68,13 +68,13 @@ class TestRateLimiter:
 
     def test_rate_limiter_init(self):
         """Test rate limiter initialization."""
-        limiter = RateLimiter(requests_per_minute=60, burst_size=10)
+        limiter = RateLimiter(requests_per_minute=60, burst=10)
         assert limiter.requests_per_minute == 60
-        assert limiter.burst_size == 10
+        assert limiter.burst == 10
 
     def test_allow_request(self):
         """Test allowing requests."""
-        limiter = RateLimiter(requests_per_minute=60, burst_size=10)
+        limiter = RateLimiter(requests_per_minute=60, burst=10)
 
         # Should allow request
         assert limiter.allow_request("user1") is True
@@ -82,7 +82,7 @@ class TestRateLimiter:
 
     def test_rate_limit_enforcement(self):
         """Test rate limit enforcement."""
-        limiter = RateLimiter(requests_per_minute=60, burst_size=5)
+        limiter = RateLimiter(requests_per_minute=60, burst=5)
 
         # Consume all burst tokens
         for _ in range(5):
@@ -93,7 +93,7 @@ class TestRateLimiter:
 
     def test_different_users(self):
         """Test rate limiting per user."""
-        limiter = RateLimiter(requests_per_minute=60, burst_size=5)
+        limiter = RateLimiter(requests_per_minute=60, burst=5)
 
         # User1 consumes all tokens
         for _ in range(5):
@@ -104,7 +104,7 @@ class TestRateLimiter:
 
     def test_bucket_cleanup(self):
         """Test automatic bucket cleanup."""
-        limiter = RateLimiter(requests_per_minute=60, burst_size=10, cleanup_interval=1)
+        limiter = RateLimiter(requests_per_minute=60, burst=10, cleanup_interval=1)
 
         # Create buckets for multiple users
         limiter.allow_request("user1")
@@ -123,7 +123,7 @@ class TestRateLimiter:
 
     def test_get_bucket_info(self):
         """Test getting bucket information."""
-        limiter = RateLimiter(requests_per_minute=60, burst_size=10)
+        limiter = RateLimiter(requests_per_minute=60, burst=10)
 
         limiter.allow_request("user1")
         limiter.allow_request("user1")
