@@ -23,9 +23,7 @@ class TestMetricsCollector:
 
     def test_record_request_failure(self, metrics_collector):
         """Test recording failed request."""
-        metrics_collector.record_request(
-            "get_build", 150.0, success=False, error_type="NotFound"
-        )
+        metrics_collector.record_request("get_build", 150.0, success=False, error_type="NotFound")
 
         assert metrics_collector.requests_total == 1
         assert metrics_collector.requests_success == 0

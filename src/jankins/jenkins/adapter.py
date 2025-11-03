@@ -90,6 +90,7 @@ class JenkinsAdapter:
             return self.server.get_job_info(name)
         except jenkins.NotFoundException:
             from ..errors import NotFoundError
+
             raise NotFoundError(f"Job '{name}' not found", resource_type="Job")
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, f"get job '{name}'")
@@ -104,6 +105,7 @@ class JenkinsAdapter:
             return self.server.build_job(name, parameters=parameters or {})
         except jenkins.NotFoundException:
             from ..errors import NotFoundError
+
             raise NotFoundError(f"Job '{name}' not found", resource_type="Job")
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, f"trigger job '{name}'")
@@ -114,6 +116,7 @@ class JenkinsAdapter:
             self.server.enable_job(name)
         except jenkins.NotFoundException:
             from ..errors import NotFoundError
+
             raise NotFoundError(f"Job '{name}' not found", resource_type="Job")
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, f"enable job '{name}'")
@@ -124,6 +127,7 @@ class JenkinsAdapter:
             self.server.disable_job(name)
         except jenkins.NotFoundException:
             from ..errors import NotFoundError
+
             raise NotFoundError(f"Job '{name}' not found", resource_type="Job")
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, f"disable job '{name}'")
@@ -136,9 +140,9 @@ class JenkinsAdapter:
             return self.server.get_build_info(name, number)
         except jenkins.NotFoundException:
             from ..errors import NotFoundError
+
             raise NotFoundError(
-                f"Build #{number} for job '{name}' not found",
-                resource_type="Build"
+                f"Build #{number} for job '{name}' not found", resource_type="Build"
             )
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, f"get build #{number} for '{name}'")
@@ -152,9 +156,9 @@ class JenkinsAdapter:
             return self.server.get_build_console_output(name, number)
         except jenkins.NotFoundException:
             from ..errors import NotFoundError
+
             raise NotFoundError(
-                f"Build #{number} for job '{name}' not found",
-                resource_type="Build"
+                f"Build #{number} for job '{name}' not found", resource_type="Build"
             )
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, f"get console for '{name}' #{number}")
@@ -205,7 +209,7 @@ class JenkinsAdapter:
             if self.config.debug_http:
                 logger.debug(
                     f"REST GET {path} -> {response.status_code}",
-                    extra={"status": response.status_code}
+                    extra={"status": response.status_code},
                 )
 
             response.raise_for_status()
@@ -234,7 +238,7 @@ class JenkinsAdapter:
             if self.config.debug_http:
                 logger.debug(
                     f"REST POST {path} -> {response.status_code}",
-                    extra={"status": response.status_code}
+                    extra={"status": response.status_code},
                 )
 
             response.raise_for_status()
@@ -255,6 +259,7 @@ class JenkinsAdapter:
 
         if isinstance(e, jenkins.NotFoundException):
             from ..errors import NotFoundError
+
             return NotFoundError(f"Failed to {operation}: {error_msg}")
 
         if "401" in error_msg or "Unauthorized" in error_msg:
@@ -262,6 +267,7 @@ class JenkinsAdapter:
 
         if "403" in error_msg or "Forbidden" in error_msg:
             from ..errors import ForbiddenError
+
             return ForbiddenError(f"Failed to {operation}: {error_msg}")
 
         if "timeout" in error_msg.lower():

@@ -19,6 +19,7 @@ MCP_VERSION = "2025-06-18"
 
 class ToolParameterType(str, Enum):
     """MCP tool parameter types."""
+
     STRING = "string"
     NUMBER = "number"
     BOOLEAN = "boolean"
@@ -29,6 +30,7 @@ class ToolParameterType(str, Enum):
 @dataclass
 class ToolParameter:
     """MCP tool parameter definition."""
+
     name: str
     type: ToolParameterType
     description: str
@@ -40,6 +42,7 @@ class ToolParameter:
 @dataclass
 class Tool:
     """MCP tool definition."""
+
     name: str
     description: str
     parameters: list[ToolParameter] = field(default_factory=list)
@@ -50,11 +53,7 @@ class Tool:
         schema = {
             "name": self.name,
             "description": self.description,
-            "inputSchema": {
-                "type": "object",
-                "properties": {},
-                "required": []
-            }
+            "inputSchema": {"type": "object", "properties": {}, "required": []},
         }
 
         for param in self.parameters:
@@ -80,6 +79,7 @@ class Tool:
 @dataclass
 class Prompt:
     """MCP prompt definition."""
+
     name: str
     description: str
     arguments: list[ToolParameter] = field(default_factory=list)
@@ -134,9 +134,7 @@ class MCPServer:
                 "tools": {
                     "listChanged": False  # We don't dynamically change tools
                 },
-                "prompts": {
-                    "listChanged": False
-                }
+                "prompts": {"listChanged": False},
             },
             "serverInfo": {
                 "name": self.name,
@@ -169,8 +167,7 @@ class MCPServer:
         """
         if name not in self.tools:
             raise InvalidParamsError(
-                f"Tool '{name}' not found",
-                hint=f"Available tools: {', '.join(self.tools.keys())}"
+                f"Tool '{name}' not found", hint=f"Available tools: {', '.join(self.tools.keys())}"
             )
 
         tool = self.tools[name]
@@ -178,7 +175,7 @@ class MCPServer:
         if not tool.handler:
             raise InvalidParamsError(
                 f"Tool '{name}' has no handler registered",
-                hint="This is a server configuration error"
+                hint="This is a server configuration error",
             )
 
         # Validate required parameters
@@ -188,7 +185,7 @@ class MCPServer:
         if missing_params:
             raise InvalidParamsError(
                 f"Missing required parameters: {', '.join(missing_params)}",
-                hint=f"Tool '{name}' requires: {', '.join(required_params)}"
+                hint=f"Tool '{name}' requires: {', '.join(required_params)}",
             )
 
         try:
@@ -198,8 +195,7 @@ class MCPServer:
         except Exception as e:
             logger.exception(f"Tool '{name}' handler failed")
             raise JankinsError(
-                f"Tool execution failed: {str(e)}",
-                hint="Check server logs for details"
+                f"Tool execution failed: {str(e)}", hint="Check server logs for details"
             )
 
     async def get_prompt(self, name: str, arguments: dict[str, Any]) -> list[dict[str, Any]]:
@@ -218,7 +214,7 @@ class MCPServer:
         if name not in self.prompts:
             raise InvalidParamsError(
                 f"Prompt '{name}' not found",
-                hint=f"Available prompts: {', '.join(self.prompts.keys())}"
+                hint=f"Available prompts: {', '.join(self.prompts.keys())}",
             )
 
         prompt = self.prompts[name]
@@ -226,7 +222,7 @@ class MCPServer:
         if not prompt.handler:
             raise InvalidParamsError(
                 f"Prompt '{name}' has no handler registered",
-                hint="This is a server configuration error"
+                hint="This is a server configuration error",
             )
 
         try:
@@ -234,8 +230,7 @@ class MCPServer:
         except Exception as e:
             logger.exception(f"Prompt '{name}' handler failed")
             raise JankinsError(
-                f"Prompt execution failed: {str(e)}",
-                hint="Check server logs for details"
+                f"Prompt execution failed: {str(e)}", hint="Check server logs for details"
             )
 
     def handle_jsonrpc(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -256,35 +251,18 @@ class MCPServer:
 
         # Initialize response
         if method == "initialize":
-            return {
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "result": self.get_capabilities()
-            }
+            return {"jsonrpc": "2.0", "id": request_id, "result": self.get_capabilities()}
 
         elif method == "tools/list":
-            return {
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "result": {"tools": self.list_tools()}
-            }
+            return {"jsonrpc": "2.0", "id": request_id, "result": {"tools": self.list_tools()}}
 
         elif method == "prompts/list":
-            return {
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "result": {"prompts": self.list_prompts()}
-            }
+            return {"jsonrpc": "2.0", "id": request_id, "result": {"prompts": self.list_prompts()}}
 
         # For async methods (tools/call, prompts/get), return a marker
         # The transport layer will handle the async execution
         elif method in ["tools/call", "prompts/get"]:
-            return {
-                "_async": True,
-                "method": method,
-                "params": params,
-                "id": request_id
-            }
+            return {"_async": True, "method": method, "params": params, "id": request_id}
 
         else:
             return {
@@ -293,8 +271,6 @@ class MCPServer:
                 "error": {
                     "code": -32601,
                     "message": f"Method not found: {method}",
-                    "data": {
-                        "hint": "Check MCP protocol documentation for valid methods"
-                    }
-                }
+                    "data": {"hint": "Check MCP protocol documentation for valid methods"},
+                },
             }

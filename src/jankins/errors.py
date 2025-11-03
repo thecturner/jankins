@@ -75,7 +75,7 @@ class JankinsError(Exception):
                 "hint": self.hint,
                 "next_actions": self.next_actions,
                 "docs_url": self.docs_url,
-            }
+            },
         }
 
 
@@ -90,11 +90,14 @@ class UnauthorizedError(JankinsError):
     """Authentication failed."""
 
     def __init__(self, message: str = "Authentication failed", **kwargs):
-        kwargs.setdefault("next_actions", [
-            "Verify JENKINS_USER is correct",
-            "Regenerate JENKINS_API_TOKEN from Jenkins user settings",
-            "Check Jenkins server is accessible"
-        ])
+        kwargs.setdefault(
+            "next_actions",
+            [
+                "Verify JENKINS_USER is correct",
+                "Regenerate JENKINS_API_TOKEN from Jenkins user settings",
+                "Check Jenkins server is accessible",
+            ],
+        )
         super().__init__(message, code=ErrorCode.UNAUTHORIZED, **kwargs)
 
 
@@ -102,10 +105,13 @@ class ForbiddenError(JankinsError):
     """User lacks permissions."""
 
     def __init__(self, message: str, **kwargs):
-        kwargs.setdefault("next_actions", [
-            "Check user has required Jenkins permissions",
-            "Contact Jenkins administrator for access",
-        ])
+        kwargs.setdefault(
+            "next_actions",
+            [
+                "Check user has required Jenkins permissions",
+                "Contact Jenkins administrator for access",
+            ],
+        )
         super().__init__(message, code=ErrorCode.FORBIDDEN, **kwargs)
 
 
@@ -142,12 +148,7 @@ class RateLimitedError(JankinsError):
 class UpstreamError(JankinsError):
     """Jenkins server returned an error."""
 
-    def __init__(
-        self,
-        message: str,
-        status_code: int | None = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, status_code: int | None = None, **kwargs):
         self.status_code = status_code
         if status_code:
             message = f"Jenkins returned {status_code}: {message}"
@@ -158,11 +159,14 @@ class TimeoutError(JankinsError):
     """Request timed out."""
 
     def __init__(self, message: str = "Request to Jenkins timed out", **kwargs):
-        kwargs.setdefault("next_actions", [
-            "Check Jenkins server is responsive",
-            "Increase JENKINS_TIMEOUT setting",
-            "Check network connectivity"
-        ])
+        kwargs.setdefault(
+            "next_actions",
+            [
+                "Check Jenkins server is responsive",
+                "Increase JENKINS_TIMEOUT setting",
+                "Check network connectivity",
+            ],
+        )
         super().__init__(message, code=ErrorCode.TIMEOUT, **kwargs)
 
 

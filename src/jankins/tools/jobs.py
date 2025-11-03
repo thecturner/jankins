@@ -41,9 +41,7 @@ def register_job_tools(mcp_server, jenkins_adapter, config):
 
             # Format response
             result = TokenAwareFormatter.format_job_list(
-                page_jobs,
-                format=output_format,
-                limit=page_size
+                page_jobs, format=output_format, limit=page_size
             )
 
             result["page"] = page
@@ -51,21 +49,42 @@ def register_job_tools(mcp_server, jenkins_adapter, config):
             result["total_pages"] = (len(all_jobs) + page_size - 1) // page_size
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="list_jobs",
-        description="List Jenkins jobs with optional prefix filtering and pagination",
-        parameters=[
-            ToolParameter("prefix", ToolParameterType.STRING, "Job name prefix filter", required=False),
-            ToolParameter("page", ToolParameterType.NUMBER, "Page number (1-indexed)", required=False, default=1),
-            ToolParameter("page_size", ToolParameterType.NUMBER, "Items per page", required=False, default=50),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full", "ids"]),
-        ],
-        handler=list_jobs_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="list_jobs",
+            description="List Jenkins jobs with optional prefix filtering and pagination",
+            parameters=[
+                ToolParameter(
+                    "prefix", ToolParameterType.STRING, "Job name prefix filter", required=False
+                ),
+                ToolParameter(
+                    "page",
+                    ToolParameterType.NUMBER,
+                    "Page number (1-indexed)",
+                    required=False,
+                    default=1,
+                ),
+                ToolParameter(
+                    "page_size",
+                    ToolParameterType.NUMBER,
+                    "Items per page",
+                    required=False,
+                    default=50,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full", "ids"],
+                ),
+            ],
+            handler=list_jobs_handler,
+        )
+    )
 
     # get_job
     async def get_job_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -93,31 +112,49 @@ def register_job_tools(mcp_server, jenkins_adapter, config):
                     "url": job_info["url"],
                     "buildable": job_info.get("buildable", False),
                     "color": job_info.get("color", "unknown"),
-                    "last_build": job_info.get("lastBuild", {}).get("number") if job_info.get("lastBuild") else None,
-                    "last_successful_build": job_info.get("lastSuccessfulBuild", {}).get("number") if job_info.get("lastSuccessfulBuild") else None,
-                    "last_failed_build": job_info.get("lastFailedBuild", {}).get("number") if job_info.get("lastFailedBuild") else None,
+                    "last_build": job_info.get("lastBuild", {}).get("number")
+                    if job_info.get("lastBuild")
+                    else None,
+                    "last_successful_build": job_info.get("lastSuccessfulBuild", {}).get("number")
+                    if job_info.get("lastSuccessfulBuild")
+                    else None,
+                    "last_failed_build": job_info.get("lastFailedBuild", {}).get("number")
+                    if job_info.get("lastFailedBuild")
+                    else None,
                     "health_report": [
                         {"description": h.get("description"), "score": h.get("score")}
                         for h in job_info.get("healthReport", [])
-                    ][:3]  # Top 3 health reports
+                    ][:3],  # Top 3 health reports
                 }
             else:  # FULL
                 result = job_info
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_job",
-        description="Get detailed information about a specific Jenkins job",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name (e.g., 'folder/subfolder/job')", required=True),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full", "ids"]),
-        ],
-        handler=get_job_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_job",
+            description="Get detailed information about a specific Jenkins job",
+            parameters=[
+                ToolParameter(
+                    "name",
+                    ToolParameterType.STRING,
+                    "Full job name (e.g., 'folder/subfolder/job')",
+                    required=True,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full", "ids"],
+                ),
+            ],
+            handler=get_job_handler,
+        )
+    )
 
     # trigger_build
     async def trigger_build_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -143,15 +180,23 @@ def register_job_tools(mcp_server, jenkins_adapter, config):
                 result, correlation_id, took_ms, OutputFormat.SUMMARY
             )
 
-    mcp_server.register_tool(Tool(
-        name="trigger_build",
-        description="Trigger a new build for a Jenkins job with optional parameters",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("parameters", ToolParameterType.OBJECT, "Build parameters as key-value pairs", required=False, default={}),
-        ],
-        handler=trigger_build_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="trigger_build",
+            description="Trigger a new build for a Jenkins job with optional parameters",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "parameters",
+                    ToolParameterType.OBJECT,
+                    "Build parameters as key-value pairs",
+                    required=False,
+                    default={},
+                ),
+            ],
+            handler=trigger_build_handler,
+        )
+    )
 
     # enable_job
     async def enable_job_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -173,14 +218,16 @@ def register_job_tools(mcp_server, jenkins_adapter, config):
                 result, correlation_id, took_ms, OutputFormat.SUMMARY
             )
 
-    mcp_server.register_tool(Tool(
-        name="enable_job",
-        description="Enable a Jenkins job to allow builds",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-        ],
-        handler=enable_job_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="enable_job",
+            description="Enable a Jenkins job to allow builds",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+            ],
+            handler=enable_job_handler,
+        )
+    )
 
     # disable_job
     async def disable_job_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -202,11 +249,13 @@ def register_job_tools(mcp_server, jenkins_adapter, config):
                 result, correlation_id, took_ms, OutputFormat.SUMMARY
             )
 
-    mcp_server.register_tool(Tool(
-        name="disable_job",
-        description="Disable a Jenkins job to prevent builds",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-        ],
-        handler=disable_job_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="disable_job",
+            description="Disable a Jenkins job to prevent builds",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+            ],
+            handler=disable_job_handler,
+        )
+    )

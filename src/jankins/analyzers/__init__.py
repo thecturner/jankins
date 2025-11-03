@@ -37,8 +37,7 @@ def get_analyzer(build_tool: str) -> LogAnalyzer:
     analyzer = analyzers.get(build_tool.lower())
     if not analyzer:
         raise ValueError(
-            f"Unsupported build tool: {build_tool}. "
-            f"Supported: {', '.join(analyzers.keys())}"
+            f"Unsupported build tool: {build_tool}. Supported: {', '.join(analyzers.keys())}"
         )
 
     return analyzer

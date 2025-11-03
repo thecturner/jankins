@@ -33,8 +33,7 @@ def register_build_tools(mcp_server, jenkins_adapter, config):
                 last_build = job_info.get("lastBuild")
                 if not last_build:
                     raise InvalidParamsError(
-                        f"Job '{job_name}' has no builds",
-                        hint="Trigger a build first"
+                        f"Job '{job_name}' has no builds", hint="Trigger a build first"
                     )
                 build_number = last_build["number"]
             else:
@@ -42,8 +41,7 @@ def register_build_tools(mcp_server, jenkins_adapter, config):
                     build_number = int(number_or_last)
                 except ValueError:
                     raise InvalidParamsError(
-                        f"Invalid build number: {number_or_last}",
-                        hint="Provide a number or 'last'"
+                        f"Invalid build number: {number_or_last}", hint="Provide a number or 'last'"
                     )
 
             build_info = jenkins_adapter.get_build_info(job_name, build_number)
@@ -52,20 +50,33 @@ def register_build_tools(mcp_server, jenkins_adapter, config):
             result = TokenAwareFormatter.format_build(build_info, format=output_format)
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_build",
-        description="Get information about a specific build or the last build",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full", "ids"]),
-        ],
-        handler=get_build_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_build",
+            description="Get information about a specific build or the last build",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full", "ids"],
+                ),
+            ],
+            handler=get_build_handler,
+        )
+    )
 
     # get_build_changes
     async def get_changes_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -103,30 +114,43 @@ def register_build_tools(mcp_server, jenkins_adapter, config):
                             "message": item.get("msg", "")[:100],  # Truncate message
                         }
                         for item in items[:10]  # Top 10 changes
-                    ]
+                    ],
                 }
             else:  # FULL
                 result = {
                     "build_number": build_number,
                     "changes_count": len(items),
-                    "changes": items
+                    "changes": items,
                 }
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_build_changes",
-        description="Get SCM changes (commits) for a build",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=get_changes_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_build_changes",
+            description="Get SCM changes (commits) for a build",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=get_changes_handler,
+        )
+    )
 
     # get_build_artifacts
     async def get_artifacts_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -163,28 +187,41 @@ def register_build_tools(mcp_server, jenkins_adapter, config):
                             "path": a.get("relativePath"),
                         }
                         for a in artifacts
-                    ]
+                    ],
                 }
             else:  # FULL
                 result = {
                     "build_number": build_number,
                     "artifacts_count": len(artifacts),
                     "artifacts": artifacts,
-                    "base_url": build_info.get("url")
+                    "base_url": build_info.get("url"),
                 }
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_build_artifacts",
-        description="Get artifacts produced by a build",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=get_artifacts_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_build_artifacts",
+            description="Get artifacts produced by a build",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=get_artifacts_handler,
+        )
+    )

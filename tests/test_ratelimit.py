@@ -104,11 +104,7 @@ class TestRateLimiter:
 
     def test_bucket_cleanup(self):
         """Test automatic bucket cleanup."""
-        limiter = RateLimiter(
-            requests_per_minute=60,
-            burst_size=10,
-            cleanup_interval=1
-        )
+        limiter = RateLimiter(requests_per_minute=60, burst_size=10, cleanup_interval=1)
 
         # Create buckets for multiple users
         limiter.allow_request("user1")

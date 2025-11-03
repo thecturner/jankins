@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TestCase:
     """Represents a single test case result."""
+
     name: str
     class_name: str
     duration: float
@@ -25,6 +26,7 @@ class TestCase:
 @dataclass
 class TestSuite:
     """Represents a test suite (collection of test cases)."""
+
     name: str
     tests: int
     failures: int
@@ -37,6 +39,7 @@ class TestSuite:
 @dataclass
 class TestReport:
     """Represents complete test report from a build."""
+
     total_tests: int
     passed: int
     failed: int
@@ -64,9 +67,7 @@ class TestResultParser:
         """
         self.adapter = jenkins_adapter
 
-    def get_test_report(
-        self, job_name: str, build_number: int
-    ) -> TestReport | None:
+    def get_test_report(self, job_name: str, build_number: int) -> TestReport | None:
         """Get test report from Jenkins test results API.
 
         Args:
@@ -87,7 +88,7 @@ class TestResultParser:
             for action in actions:
                 if action and action.get("_class") in [
                     "hudson.tasks.junit.TestResultAction",
-                    "hudson.tasks.test.AggregatedTestResultAction"
+                    "hudson.tasks.test.AggregatedTestResultAction",
                 ]:
                     test_action = action
                     break
@@ -108,16 +109,14 @@ class TestResultParser:
                 skipped=skipped,
                 errors=0,  # Jenkins doesn't separate errors from failures
                 duration=0.0,  # Not available in summary
-                suites=[]  # Summary mode doesn't include detailed suites
+                suites=[],  # Summary mode doesn't include detailed suites
             )
 
         except Exception as e:
             logger.warning(f"Failed to get test report: {e}")
             return None
 
-    def get_detailed_test_report(
-        self, job_name: str, build_number: int
-    ) -> TestReport | None:
+    def get_detailed_test_report(self, job_name: str, build_number: int) -> TestReport | None:
         """Get detailed test report with individual test cases.
 
         Args:
@@ -130,7 +129,12 @@ class TestResultParser:
         try:
             # Get detailed test results via testReport API
             path = f"/job/{job_name}/{build_number}/testReport/api/json"
-            response = self.adapter.rest_get(path, params={"tree": "suites[name,duration,cases[name,className,duration,status,errorDetails,errorStackTrace]]"})
+            response = self.adapter.rest_get(
+                path,
+                params={
+                    "tree": "suites[name,duration,cases[name,className,duration,status,errorDetails,errorStackTrace]]"
+                },
+            )
             data = response.json()
 
             suites = []
@@ -159,7 +163,7 @@ class TestResultParser:
                         status=status,
                         error_message=case_data.get("errorDetails"),
                         error_type=None,  # Not provided by Jenkins API
-                        error_stacktrace=case_data.get("errorStackTrace")
+                        error_stacktrace=case_data.get("errorStackTrace"),
                     )
 
                     test_cases.append(test_case)
@@ -181,7 +185,7 @@ class TestResultParser:
                     errors=suite_errors,
                     skipped=suite_skipped,
                     duration=suite_data.get("duration", 0.0),
-                    test_cases=test_cases
+                    test_cases=test_cases,
                 )
 
                 suites.append(suite)
@@ -200,16 +204,14 @@ class TestResultParser:
                 skipped=total_skipped,
                 errors=total_errors,
                 duration=total_duration,
-                suites=suites
+                suites=suites,
             )
 
         except Exception as e:
             logger.warning(f"Failed to get detailed test report: {e}")
             return None
 
-    def get_failed_tests(
-        self, job_name: str, build_number: int, limit: int = 10
-    ) -> list[TestCase]:
+    def get_failed_tests(self, job_name: str, build_number: int, limit: int = 10) -> list[TestCase]:
         """Get only failed test cases from a build.
 
         Args:
@@ -251,10 +253,7 @@ class TestResultParser:
         head_report = self.get_test_report(job_name, head_build)
 
         if not base_report or not head_report:
-            return {
-                "available": False,
-                "error": "Test results not available for comparison"
-            }
+            return {"available": False, "error": "Test results not available for comparison"}
 
         # Calculate differences
         test_delta = head_report.total_tests - base_report.total_tests
@@ -270,27 +269,25 @@ class TestResultParser:
                 "passed": base_report.passed,
                 "failed": base_report.failed,
                 "skipped": base_report.skipped,
-                "pass_rate": round(base_report.pass_rate, 2)
+                "pass_rate": round(base_report.pass_rate, 2),
             },
             "head_stats": {
                 "total": head_report.total_tests,
                 "passed": head_report.passed,
                 "failed": head_report.failed,
                 "skipped": head_report.skipped,
-                "pass_rate": round(head_report.pass_rate, 2)
+                "pass_rate": round(head_report.pass_rate, 2),
             },
             "deltas": {
                 "tests": test_delta,
                 "failed": failed_delta,
-                "pass_rate": round(pass_rate_delta, 2)
+                "pass_rate": round(pass_rate_delta, 2),
             },
             "regression": failed_delta > 0,
-            "improvement": failed_delta < 0
+            "improvement": failed_delta < 0,
         }
 
-    def get_flaky_tests(
-        self, job_name: str, build_numbers: list[int]
-    ) -> list[dict[str, Any]]:
+    def get_flaky_tests(self, job_name: str, build_numbers: list[int]) -> list[dict[str, Any]]:
         """Identify flaky tests across multiple builds.
 
         A test is considered flaky if it has inconsistent results
@@ -326,13 +323,15 @@ class TestResultParser:
                 total_runs = len(statuses)
                 failure_rate = (failure_count / total_runs) * 100
 
-                flaky.append({
-                    "test": test_name,
-                    "failure_count": failure_count,
-                    "total_runs": total_runs,
-                    "failure_rate": round(failure_rate, 2),
-                    "statuses": statuses
-                })
+                flaky.append(
+                    {
+                        "test": test_name,
+                        "failure_count": failure_count,
+                        "total_runs": total_runs,
+                        "failure_rate": round(failure_rate, 2),
+                        "statuses": statuses,
+                    }
+                )
 
         # Sort by failure rate descending
         flaky.sort(key=lambda x: x["failure_rate"], reverse=True)

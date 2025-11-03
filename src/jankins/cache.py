@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CacheEntry:
     """Cache entry with expiration."""
+
     value: Any
     expires_at: float
 
@@ -82,10 +83,7 @@ class ResponseCache:
             if len(self._cache) >= self.max_entries:
                 self._evict_oldest()
 
-            self._cache[key] = CacheEntry(
-                value=value,
-                expires_at=time.time() + self.ttl
-            )
+            self._cache[key] = CacheEntry(value=value, expires_at=time.time() + self.ttl)
 
     def delete(self, key: str) -> None:
         """Delete cached value.
@@ -128,15 +126,11 @@ class ResponseCache:
                 "hits": self._hits,
                 "misses": self._misses,
                 "hit_rate": round(hit_rate, 2),
-                "total_requests": total_requests
+                "total_requests": total_requests,
             }
 
 
-def cache_key_from_args(
-    tool_name: str,
-    args: dict[str, Any],
-    exclude_keys: list = None
-) -> str:
+def cache_key_from_args(tool_name: str, args: dict[str, Any], exclude_keys: list = None) -> str:
     """Generate cache key from tool name and arguments.
 
     Args:
@@ -150,16 +144,10 @@ def cache_key_from_args(
     exclude_keys = exclude_keys or ["format"]
 
     # Filter out excluded keys
-    filtered_args = {
-        k: v for k, v in args.items()
-        if k not in exclude_keys
-    }
+    filtered_args = {k: v for k, v in args.items() if k not in exclude_keys}
 
     # Create stable key from tool name and args
-    key_data = {
-        "tool": tool_name,
-        "args": filtered_args
-    }
+    key_data = {"tool": tool_name, "args": filtered_args}
 
     # Hash for consistent key
     key_json = json.dumps(key_data, sort_keys=True)
@@ -168,10 +156,7 @@ def cache_key_from_args(
     return f"{tool_name}:{key_hash}"
 
 
-def cached_tool(
-    cache: ResponseCache,
-    cacheable_tools: list = None
-):
+def cached_tool(cache: ResponseCache, cacheable_tools: list = None):
     """Decorator to add caching to tool handlers.
 
     Args:

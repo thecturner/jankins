@@ -55,7 +55,7 @@ def test_format_build_summary():
         "building": False,
         "url": "http://jenkins/job/test/42",
         "changeSet": {"items": [{"commit": "abc123"}]},
-        "artifacts": [{"fileName": "app.jar"}]
+        "artifacts": [{"fileName": "app.jar"}],
     }
 
     result = TokenAwareFormatter.format_build(build, format=OutputFormat.SUMMARY)
@@ -89,10 +89,7 @@ def test_add_metadata():
     data = {"job": "test", "result": "success"}
 
     result = TokenAwareFormatter.add_metadata(
-        data,
-        correlation_id="test-123",
-        took_ms=250,
-        format_used=OutputFormat.SUMMARY
+        data, correlation_id="test-123", took_ms=250, format_used=OutputFormat.SUMMARY
     )
 
     assert "_meta" in result

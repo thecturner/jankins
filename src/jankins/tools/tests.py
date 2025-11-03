@@ -52,7 +52,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                     "build_number": build_number,
                     "job_name": job_name,
                     "available": False,
-                    "message": "No test results available for this build"
+                    "message": "No test results available for this build",
                 }
             else:
                 result = {
@@ -65,7 +65,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                     "skipped": report.skipped,
                     "errors": report.errors,
                     "pass_rate": round(report.pass_rate, 2),
-                    "duration": round(report.duration, 2)
+                    "duration": round(report.duration, 2),
                 }
 
                 # Include detailed suites only in full format
@@ -77,27 +77,46 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                             "failures": suite.failures,
                             "errors": suite.errors,
                             "skipped": suite.skipped,
-                            "duration": round(suite.duration, 2)
+                            "duration": round(suite.duration, 2),
                         }
                         for suite in report.suites
                     ]
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_test_report",
-        description="Get test results summary from a build (JUnit, pytest, etc.)",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("detailed", ToolParameterType.BOOLEAN, "Include detailed test suites", required=False, default=False),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=get_test_report_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_test_report",
+            description="Get test results summary from a build (JUnit, pytest, etc.)",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "detailed",
+                    ToolParameterType.BOOLEAN,
+                    "Include detailed test suites",
+                    required=False,
+                    default=False,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=get_test_report_handler,
+        )
+    )
 
     # get_failed_tests
     async def get_failed_tests_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -128,7 +147,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                 "build_number": build_number,
                 "job_name": job_name,
                 "failed_count": len(failed_tests),
-                "failed_tests": []
+                "failed_tests": [],
             }
 
             for test in failed_tests:
@@ -153,21 +172,40 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                 result["failed_tests"].append(test_info)
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_failed_tests",
-        description="Get list of failed tests from a build with error details",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("limit", ToolParameterType.NUMBER, "Maximum number of failed tests to return", required=False, default=10),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=get_failed_tests_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_failed_tests",
+            description="Get list of failed tests from a build with error details",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "limit",
+                    ToolParameterType.NUMBER,
+                    "Maximum number of failed tests to return",
+                    required=False,
+                    default=10,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=get_failed_tests_handler,
+        )
+    )
 
     # compare_test_results
     async def compare_test_results_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -190,17 +228,28 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                 comparison, correlation_id, took_ms, output_format
             )
 
-    mcp_server.register_tool(Tool(
-        name="compare_test_results",
-        description="Compare test results between two builds to identify new failures and regressions",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("base", ToolParameterType.STRING, "Base build number", required=True),
-            ToolParameter("head", ToolParameterType.STRING, "Head build number to compare", required=True),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="diff", enum=["summary", "full", "diff"]),
-        ],
-        handler=compare_test_results_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="compare_test_results",
+            description="Compare test results between two builds to identify new failures and regressions",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter("base", ToolParameterType.STRING, "Base build number", required=True),
+                ToolParameter(
+                    "head", ToolParameterType.STRING, "Head build number to compare", required=True
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="diff",
+                    enum=["summary", "full", "diff"],
+                ),
+            ],
+            handler=compare_test_results_handler,
+        )
+    )
 
     # detect_flaky_tests
     async def detect_flaky_tests_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -219,11 +268,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
             build_numbers = [b["number"] for b in builds]
 
             if not build_numbers:
-                result = {
-                    "job_name": job_name,
-                    "builds_analyzed": 0,
-                    "flaky_tests": []
-                }
+                result = {"job_name": job_name, "builds_analyzed": 0, "flaky_tests": []}
             else:
                 # Detect flaky tests
                 flaky_tests = test_parser.get_flaky_tests(job_name, build_numbers)
@@ -233,7 +278,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                     "builds_analyzed": len(build_numbers),
                     "build_range": f"{build_numbers[-1]}-{build_numbers[0]}",
                     "flaky_count": len(flaky_tests),
-                    "flaky_tests": flaky_tests[:20]  # Top 20
+                    "flaky_tests": flaky_tests[:20],  # Top 20
                 }
 
                 # In summary mode, exclude detailed statuses
@@ -242,17 +287,30 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
                         test.pop("statuses", None)
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="detect_flaky_tests",
-        description="Identify flaky tests (inconsistent pass/fail) across recent builds",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("build_count", ToolParameterType.NUMBER, "Number of recent builds to analyze", required=False, default=10),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=detect_flaky_tests_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="detect_flaky_tests",
+            description="Identify flaky tests (inconsistent pass/fail) across recent builds",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "build_count",
+                    ToolParameterType.NUMBER,
+                    "Number of recent builds to analyze",
+                    required=False,
+                    default=10,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=detect_flaky_tests_handler,
+        )
+    )

@@ -48,7 +48,7 @@ class JankinsServer:
                 "bind": config.mcp_bind,
                 "tools_count": len(self.mcp_server.tools),
                 "prompts_count": len(self.mcp_server.prompts),
-            }
+            },
         )
 
     def create_app(self):
@@ -58,14 +58,11 @@ class JankinsServer:
             Starlette app
         """
         app = create_transport(
-            self.mcp_server,
-            self.config,
-            transport_type=self.config.mcp_transport
+            self.mcp_server, self.config, transport_type=self.config.mcp_transport
         )
 
         logger.info(
-            f"Created {self.config.mcp_transport} transport",
-            extra={"bind": self.config.mcp_bind}
+            f"Created {self.config.mcp_transport} transport", extra={"bind": self.config.mcp_bind}
         )
 
         return app

@@ -18,7 +18,7 @@ class TestBlueOceanClient:
 
     def test_get_pipeline_nodes(self, blueocean_client, sample_blueocean_nodes):
         """Test getting pipeline nodes."""
-        with patch.object(blueocean_client, '_make_request') as mock_request:
+        with patch.object(blueocean_client, "_make_request") as mock_request:
             mock_request.return_value = sample_blueocean_nodes
 
             nodes = blueocean_client.get_pipeline_nodes("test-job", 42)
@@ -29,7 +29,7 @@ class TestBlueOceanClient:
 
     def test_get_pipeline_graph(self, blueocean_client, sample_blueocean_nodes):
         """Test getting pipeline graph structure."""
-        with patch.object(blueocean_client, 'get_pipeline_nodes') as mock_nodes:
+        with patch.object(blueocean_client, "get_pipeline_nodes") as mock_nodes:
             mock_nodes.return_value = sample_blueocean_nodes
 
             graph = blueocean_client.get_pipeline_graph("test-job", 42)
@@ -64,7 +64,7 @@ class TestBlueOceanClient:
             },
         ]
 
-        with patch.object(blueocean_client, 'get_pipeline_nodes') as mock_nodes:
+        with patch.object(blueocean_client, "get_pipeline_nodes") as mock_nodes:
             mock_nodes.return_value = nodes
 
             graph = blueocean_client.get_pipeline_graph("test-job", 42)
@@ -73,7 +73,7 @@ class TestBlueOceanClient:
 
     def test_stage_timing(self, blueocean_client, sample_blueocean_nodes):
         """Test stage timing calculation."""
-        with patch.object(blueocean_client, 'get_pipeline_nodes') as mock_nodes:
+        with patch.object(blueocean_client, "get_pipeline_nodes") as mock_nodes:
             mock_nodes.return_value = sample_blueocean_nodes
 
             graph = blueocean_client.get_pipeline_graph("test-job", 42)

@@ -19,7 +19,7 @@ class TestStdioTransport:
             "jsonrpc": "2.0",
             "id": 1,
             "method": "initialize",
-            "params": {"protocolVersion": "2025-06-18"}
+            "params": {"protocolVersion": "2025-06-18"},
         }
 
         response = await handle_stdio_request(mcp_server, request)
@@ -89,11 +89,7 @@ class TestStdioTransport:
 
     def test_write_response(self, capsys):
         """Test writing response to stdout."""
-        response = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "result": {"status": "ok"}
-        }
+        response = {"jsonrpc": "2.0", "id": 1, "result": {"status": "ok"}}
 
         write_response(response)
 
@@ -112,14 +108,11 @@ class TestStdioTransport:
             "jsonrpc": "2.0",
             "id": 5,
             "method": "tools/call",
-            "params": {
-                "name": "whoami",
-                "arguments": {}
-            }
+            "params": {"name": "whoami", "arguments": {}},
         }
 
         # Mock the call_tool method
-        with patch.object(mcp_server, 'call_tool', new_callable=AsyncMock) as mock_call:
+        with patch.object(mcp_server, "call_tool", new_callable=AsyncMock) as mock_call:
             mock_call.return_value = {"user": "test_user"}
 
             response = await handle_stdio_request(mcp_server, request)
@@ -140,10 +133,7 @@ class TestStdioTransport:
             "jsonrpc": "2.0",
             "id": 6,
             "method": "tools/call",
-            "params": {
-                "name": "nonexistent_tool",
-                "arguments": {}
-            }
+            "params": {"name": "nonexistent_tool", "arguments": {}},
         }
 
         response = await handle_stdio_request(mcp_server, request)

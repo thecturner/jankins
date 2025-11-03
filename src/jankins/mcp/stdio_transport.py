@@ -24,10 +24,10 @@ async def run_stdio_server(mcp_server: MCPServer) -> None:
     Args:
         mcp_server: MCP server instance
     """
-    logger.info("Starting jankins MCP server in stdio mode", extra={
-        "tools": len(mcp_server.tools),
-        "prompts": len(mcp_server.prompts)
-    })
+    logger.info(
+        "Starting jankins MCP server in stdio mode",
+        extra={"tools": len(mcp_server.tools), "prompts": len(mcp_server.prompts)},
+    )
 
     # Ensure stdout is line-buffered for immediate response delivery
     sys.stdout.reconfigure(line_buffering=True)
@@ -37,9 +37,7 @@ async def run_stdio_server(mcp_server: MCPServer) -> None:
         while True:
             try:
                 # Read a line from stdin
-                line = await asyncio.get_event_loop().run_in_executor(
-                    None, sys.stdin.readline
-                )
+                line = await asyncio.get_event_loop().run_in_executor(None, sys.stdin.readline)
 
                 if not line:
                     # EOF - client closed connection
@@ -59,11 +57,8 @@ async def run_stdio_server(mcp_server: MCPServer) -> None:
                     logger.error(f"Invalid JSON: {e}")
                     response = {
                         "jsonrpc": "2.0",
-                        "error": {
-                            "code": -32700,
-                            "message": "Parse error: Invalid JSON"
-                        },
-                        "id": None
+                        "error": {"code": -32700, "message": "Parse error: Invalid JSON"},
+                        "id": None,
                     }
                     write_response(response)
                     continue
@@ -85,9 +80,9 @@ async def run_stdio_server(mcp_server: MCPServer) -> None:
                     "error": {
                         "code": -32603,
                         "message": "Internal error",
-                        "data": {"hint": str(e)}
+                        "data": {"hint": str(e)},
                     },
-                    "id": None
+                    "id": None,
                 }
                 write_response(error_response)
 
@@ -98,10 +93,7 @@ async def run_stdio_server(mcp_server: MCPServer) -> None:
     logger.info("jankins stdio server stopped")
 
 
-async def handle_stdio_request(
-    mcp_server: MCPServer,
-    request: dict
-) -> dict:
+async def handle_stdio_request(mcp_server: MCPServer, request: dict) -> dict:
     """Handle a single JSON-RPC request.
 
     Args:
@@ -124,50 +116,36 @@ async def handle_stdio_request(
             try:
                 if method == "tools/call":
                     result = await mcp_server.call_tool(
-                        params.get("name"),
-                        params.get("arguments", {})
+                        params.get("name"), params.get("arguments", {})
                     )
                     # Wrap result in MCP content format
                     # MCP spec requires tool results in content array
-                    result_text = json.dumps(result, indent=2) if isinstance(result, dict) else str(result)
-                    response = {
-                        "jsonrpc": "2.0",
-                        "id": request_id,
-                        "result": {
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": result_text
-                                }
-                            ]
-                        }
-                    }
-                elif method == "prompts/get":
-                    messages = await mcp_server.get_prompt(
-                        params.get("name"),
-                        params.get("arguments", {})
+                    result_text = (
+                        json.dumps(result, indent=2) if isinstance(result, dict) else str(result)
                     )
                     response = {
                         "jsonrpc": "2.0",
                         "id": request_id,
-                        "result": {"messages": messages}
+                        "result": {"content": [{"type": "text", "text": result_text}]},
+                    }
+                elif method == "prompts/get":
+                    messages = await mcp_server.get_prompt(
+                        params.get("name"), params.get("arguments", {})
+                    )
+                    response = {
+                        "jsonrpc": "2.0",
+                        "id": request_id,
+                        "result": {"messages": messages},
                     }
                 else:
                     # Unknown async method
                     response = {
                         "jsonrpc": "2.0",
                         "id": request_id,
-                        "error": {
-                            "code": -32601,
-                            "message": f"Method not found: {method}"
-                        }
+                        "error": {"code": -32601, "message": f"Method not found: {method}"},
                     }
             except JankinsError as e:
-                response = {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "error": e.to_dict()
-                }
+                response = {"jsonrpc": "2.0", "id": request_id, "error": e.to_dict()}
             except Exception as e:
                 logger.exception(f"Error executing async method {method}")
                 response = {
@@ -176,8 +154,8 @@ async def handle_stdio_request(
                     "error": {
                         "code": -32603,
                         "message": "Internal error",
-                        "data": {"hint": str(e)}
-                    }
+                        "data": {"hint": str(e)},
+                    },
                 }
 
         return response
@@ -186,12 +164,8 @@ async def handle_stdio_request(
         logger.exception("Error handling JSON-RPC request")
         return {
             "jsonrpc": "2.0",
-            "error": {
-                "code": -32603,
-                "message": "Internal error",
-                "data": {"hint": str(e)}
-            },
-            "id": request.get("id")
+            "error": {"code": -32603, "message": "Internal error", "data": {"hint": str(e)}},
+            "id": request.get("id"),
         }
 
 

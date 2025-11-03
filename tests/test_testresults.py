@@ -82,10 +82,7 @@ class TestTestResultParser:
         report = parser.parse_test_report(sample_test_report)
 
         failed_tests = [
-            case
-            for suite in report.suites
-            for case in suite.cases
-            if case.status == "FAILED"
+            case for suite in report.suites for case in suite.cases if case.status == "FAILED"
         ]
 
         assert len(failed_tests) == 1

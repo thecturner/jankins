@@ -31,10 +31,7 @@ class NpmAnalyzer(LogAnalyzer):
         Returns:
             AnalysisResult with NPM-specific information
         """
-        result = AnalysisResult(
-            build_tool="npm",
-            detected=self.detect(log_content)
-        )
+        result = AnalysisResult(build_tool="npm", detected=self.detect(log_content))
 
         if not result.detected:
             result.summary = "NPM/Yarn build not detected in log"
@@ -113,59 +110,73 @@ class NpmAnalyzer(LogAnalyzer):
 
         # Check for dependency resolution failures
         if "Could not resolve dependency" in log_content or "ERESOLVE" in log_content:
-            issues.append({
-                "type": "dependency_resolution",
-                "severity": "error",
-                "message": "Failed to resolve package dependencies"
-            })
+            issues.append(
+                {
+                    "type": "dependency_resolution",
+                    "severity": "error",
+                    "message": "Failed to resolve package dependencies",
+                }
+            )
 
         # Check for compilation/build failures
         if "Failed to compile" in log_content or "ERROR in" in log_content:
-            issues.append({
-                "type": "compilation",
-                "severity": "error",
-                "message": "Webpack/TypeScript compilation failed"
-            })
+            issues.append(
+                {
+                    "type": "compilation",
+                    "severity": "error",
+                    "message": "Webpack/TypeScript compilation failed",
+                }
+            )
 
         # Check for test failures
         if " failing" in log_content or "Tests:.*failed" in log_content:
-            issues.append({
-                "type": "test_failure",
-                "severity": "error",
-                "message": "Unit or integration tests failed"
-            })
+            issues.append(
+                {
+                    "type": "test_failure",
+                    "severity": "error",
+                    "message": "Unit or integration tests failed",
+                }
+            )
 
         # Check for missing modules
         if "Module not found" in log_content or "Cannot find module" in log_content:
-            issues.append({
-                "type": "missing_module",
-                "severity": "error",
-                "message": "Required module or package not found"
-            })
+            issues.append(
+                {
+                    "type": "missing_module",
+                    "severity": "error",
+                    "message": "Required module or package not found",
+                }
+            )
 
         # Check for network errors
         if "ECONNREFUSED" in log_content or "ETIMEDOUT" in log_content:
-            issues.append({
-                "type": "network_error",
-                "severity": "error",
-                "message": "Network error accessing npm registry"
-            })
+            issues.append(
+                {
+                    "type": "network_error",
+                    "severity": "error",
+                    "message": "Network error accessing npm registry",
+                }
+            )
 
         # Check for permission errors
         if "EACCES" in log_content or "permission denied" in log_content.lower():
-            issues.append({
-                "type": "permission_error",
-                "severity": "error",
-                "message": "Permission denied during npm operation"
-            })
+            issues.append(
+                {
+                    "type": "permission_error",
+                    "severity": "error",
+                    "message": "Permission denied during npm operation",
+                }
+            )
 
         # Check for out of memory
         if "JavaScript heap out of memory" in log_content:
-            issues.append({
-                "type": "out_of_memory",
-                "severity": "error",
-                "message": "Node.js ran out of heap memory"
-            })
+            issues.append(
+                {
+                    "type": "out_of_memory",
+                    "severity": "error",
+                    "message": "Node.js ran out of heap memory",
+                }
+            )
 
         return issues
 
@@ -181,23 +192,13 @@ class NpmAnalyzer(LogAnalyzer):
         recommendations = []
 
         if result.dependencies_failed:
-            recommendations.append(
-                "Check package.json versions and registry availability"
-            )
-            recommendations.append(
-                "Try clearing cache: npm cache clean --force"
-            )
-            recommendations.append(
-                "Delete node_modules and package-lock.json, reinstall"
-            )
+            recommendations.append("Check package.json versions and registry availability")
+            recommendations.append("Try clearing cache: npm cache clean --force")
+            recommendations.append("Delete node_modules and package-lock.json, reinstall")
 
         if result.test_failures > 0:
-            recommendations.append(
-                "Review failing test cases and fix issues"
-            )
-            recommendations.append(
-                "Run tests locally: npm test"
-            )
+            recommendations.append("Review failing test cases and fix issues")
+            recommendations.append("Run tests locally: npm test")
 
         for issue in result.issues:
             if issue["type"] == "out_of_memory":
@@ -205,17 +206,11 @@ class NpmAnalyzer(LogAnalyzer):
                     "Increase Node heap size: NODE_OPTIONS=--max-old-space-size=4096"
                 )
             elif issue["type"] == "network_error":
-                recommendations.append(
-                    "Check npm registry connectivity and proxy settings"
-                )
+                recommendations.append("Check npm registry connectivity and proxy settings")
             elif issue["type"] == "permission_error":
-                recommendations.append(
-                    "Fix npm permissions or use npx/yarn"
-                )
+                recommendations.append("Fix npm permissions or use npx/yarn")
             elif issue["type"] == "missing_module":
-                recommendations.append(
-                    "Run npm install to install missing dependencies"
-                )
+                recommendations.append("Run npm install to install missing dependencies")
 
         if not recommendations:
             recommendations.append("Review error messages for specific issues")
@@ -237,9 +232,7 @@ class NpmAnalyzer(LogAnalyzer):
             parts.append(f"{result.test_failures} test failure(s)")
 
         if result.dependencies_failed:
-            parts.append(
-                f"{len(result.dependencies_failed)} dependency issue(s)"
-            )
+            parts.append(f"{len(result.dependencies_failed)} dependency issue(s)")
 
         if len(result.errors) > 0:
             parts.append(f"{len(result.errors)} error message(s)")

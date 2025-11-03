@@ -8,10 +8,10 @@ class OutputFormat(str, Enum):
     """Output format options for tool responses."""
 
     SUMMARY = "summary"  # Minimal, token-efficient summary
-    FULL = "full"        # Complete data with all fields
-    DIFF = "diff"        # Differences only (for comparisons)
-    IDS = "ids"          # IDs and URLs only
-    TABLE = "table"      # Compact table format
+    FULL = "full"  # Complete data with all fields
+    DIFF = "diff"  # Differences only (for comparisons)
+    IDS = "ids"  # IDs and URLs only
+    TABLE = "table"  # Compact table format
 
 
 def compact_dict(data: dict[str, Any], include_keys: list[str]) -> dict[str, Any]:
@@ -38,4 +38,5 @@ def format_duration(milliseconds: int) -> str:
 def format_timestamp(timestamp_ms: int) -> str:
     """Format Unix timestamp in milliseconds to ISO string."""
     from datetime import datetime
+
     return datetime.fromtimestamp(timestamp_ms / 1000).isoformat()

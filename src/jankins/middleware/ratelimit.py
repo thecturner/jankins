@@ -47,10 +47,7 @@ class RateLimitBucket:
         self.last_refill = now
 
         # Add tokens based on elapsed time
-        self.tokens = min(
-            self.capacity,
-            self.tokens + (elapsed * self.refill_rate)
-        )
+        self.tokens = min(self.capacity, self.tokens + (elapsed * self.refill_rate))
 
     def time_until_available(self, tokens: int = 1) -> float:
         """Calculate seconds until enough tokens available.
@@ -81,7 +78,7 @@ class RateLimiter:
         self,
         requests_per_minute: int = 60,
         burst: int = 10,
-        cleanup_interval: int = 300  # 5 minutes
+        cleanup_interval: int = 300,  # 5 minutes
     ):
         """Initialize rate limiter.
 
@@ -99,9 +96,7 @@ class RateLimiter:
         self.last_cleanup = time.time()
         self.cleanup_interval = cleanup_interval
 
-        logger.info(
-            f"Rate limiter initialized: {requests_per_minute} req/min, burst={burst}"
-        )
+        logger.info(f"Rate limiter initialized: {requests_per_minute} req/min, burst={burst}")
 
     def check_rate_limit(self, identifier: str) -> tuple[bool, float | None]:
         """Check if request is within rate limit.
@@ -118,8 +113,7 @@ class RateLimiter:
         # Get or create bucket for this identifier
         if identifier not in self.buckets:
             self.buckets[identifier] = RateLimitBucket(
-                capacity=self.burst,
-                refill_rate=self.refill_rate
+                capacity=self.burst, refill_rate=self.refill_rate
             )
 
         bucket = self.buckets[identifier]
@@ -130,8 +124,7 @@ class RateLimiter:
         else:
             retry_after = bucket.time_until_available(1)
             logger.warning(
-                f"Rate limit exceeded for {identifier}",
-                extra={"retry_after": retry_after}
+                f"Rate limit exceeded for {identifier}", extra={"retry_after": retry_after}
             )
             return (False, retry_after)
 
@@ -147,8 +140,7 @@ class RateLimiter:
         to_remove = []
 
         for identifier, bucket in self.buckets.items():
-            if (bucket.tokens >= bucket.capacity and
-                bucket.last_refill < inactive_threshold):
+            if bucket.tokens >= bucket.capacity and bucket.last_refill < inactive_threshold:
                 to_remove.append(identifier)
 
         for identifier in to_remove:
@@ -173,22 +165,17 @@ class RateLimiter:
                 identifier: {
                     "tokens": round(bucket.tokens, 2),
                     "capacity": bucket.capacity,
-                    "last_refill": bucket.last_refill
+                    "last_refill": bucket.last_refill,
                 }
                 for identifier, bucket in list(self.buckets.items())[:10]  # Top 10
-            }
+            },
         }
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Starlette middleware for rate limiting MCP requests."""
 
-    def __init__(
-        self,
-        app,
-        rate_limiter: RateLimiter,
-        enabled: bool = True
-    ):
+    def __init__(self, app, rate_limiter: RateLimiter, enabled: bool = True):
         """Initialize rate limit middleware.
 
         Args:
@@ -234,16 +221,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                         "data": {
                             "retry_after": round(retry_after, 2),
                             "limit": self.rate_limiter.requests_per_minute,
-                            "identifier": identifier
-                        }
+                            "identifier": identifier,
+                        },
                     },
-                    "id": None
+                    "id": None,
                 },
                 headers={
                     "Retry-After": str(int(retry_after) + 1),
                     "X-RateLimit-Limit": str(self.rate_limiter.requests_per_minute),
-                    "X-RateLimit-Remaining": "0"
-                }
+                    "X-RateLimit-Remaining": "0",
+                },
             )
 
         # Process request
@@ -252,9 +239,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Add rate limit headers to response
         bucket = self.rate_limiter.buckets.get(identifier)
         if bucket:
-            response.headers["X-RateLimit-Limit"] = str(
-                self.rate_limiter.requests_per_minute
-            )
+            response.headers["X-RateLimit-Limit"] = str(self.rate_limiter.requests_per_minute)
             response.headers["X-RateLimit-Remaining"] = str(int(bucket.tokens))
 
         return response
@@ -273,6 +258,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if auth_header.startswith("Basic "):
             try:
                 import base64
+
                 decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
                 username = decoded.split(":")[0]
                 if username:

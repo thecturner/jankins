@@ -12,11 +12,7 @@ from jankins.errors import (
 
 def test_jankins_error_creation():
     """Test basic JankinsError creation."""
-    error = JankinsError(
-        message="Test error",
-        code=ErrorCode.INTERNAL_ERROR,
-        hint="Test hint"
-    )
+    error = JankinsError(message="Test error", code=ErrorCode.INTERNAL_ERROR, hint="Test hint")
 
     assert error.message == "Test error"
     assert error.code == ErrorCode.INTERNAL_ERROR
@@ -55,7 +51,7 @@ def test_error_to_dict():
         message="Test error",
         code=ErrorCode.TIMEOUT,
         hint="Test hint",
-        next_actions=["Action 1", "Action 2"]
+        next_actions=["Action 1", "Action 2"],
     )
 
     error_dict = error.to_dict()

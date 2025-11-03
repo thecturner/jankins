@@ -42,22 +42,26 @@ Use the following tools:
 - get_build_log with format=summary to get error summary
 - triage_failure to analyze the failure
 - get_build_changes to see recent commits that may have caused the failure
-"""
-                }
+""",
+                },
             }
         ]
 
         return messages
 
-    mcp_server.register_prompt(Prompt(
-        name="investigate_failure",
-        description="Investigate a failing pipeline step with root cause analysis",
-        arguments=[
-            ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
-            ToolParameter("build", ToolParameterType.STRING, "Build number or 'last'", required=False),
-        ],
-        handler=investigate_failure_handler
-    ))
+    mcp_server.register_prompt(
+        Prompt(
+            name="investigate_failure",
+            description="Investigate a failing pipeline step with root cause analysis",
+            arguments=[
+                ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
+                ToolParameter(
+                    "build", ToolParameterType.STRING, "Build number or 'last'", required=False
+                ),
+            ],
+            handler=investigate_failure_handler,
+        )
+    )
 
     # tail_errors
     async def tail_errors_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
@@ -81,22 +85,26 @@ Please use get_build_log with:
 - format=summary for a compact view
 
 Focus on the most recent errors at the end of the log.
-"""
-                }
+""",
+                },
             }
         ]
 
         return messages
 
-    mcp_server.register_prompt(Prompt(
-        name="tail_errors",
-        description="Tail only warnings and errors for the last run",
-        arguments=[
-            ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
-            ToolParameter("build", ToolParameterType.STRING, "Build number or 'last'", required=False),
-        ],
-        handler=tail_errors_handler
-    ))
+    mcp_server.register_prompt(
+        Prompt(
+            name="tail_errors",
+            description="Tail only warnings and errors for the last run",
+            arguments=[
+                ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
+                ToolParameter(
+                    "build", ToolParameterType.STRING, "Build number or 'last'", required=False
+                ),
+            ],
+            handler=tail_errors_handler,
+        )
+    )
 
     # compare_builds
     async def compare_builds_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
@@ -122,23 +130,25 @@ Please use:
 - If results differ, use triage_failure on the failing build
 
 Summarize key differences and potential causes of any new failures.
-"""
-                }
+""",
+                },
             }
         ]
 
         return messages
 
-    mcp_server.register_prompt(Prompt(
-        name="compare_builds",
-        description="Compare two builds to identify differences",
-        arguments=[
-            ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
-            ToolParameter("base", ToolParameterType.STRING, "Base build number", required=True),
-            ToolParameter("head", ToolParameterType.STRING, "Head build number", required=True),
-        ],
-        handler=compare_builds_handler
-    ))
+    mcp_server.register_prompt(
+        Prompt(
+            name="compare_builds",
+            description="Compare two builds to identify differences",
+            arguments=[
+                ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
+                ToolParameter("base", ToolParameterType.STRING, "Base build number", required=True),
+                ToolParameter("head", ToolParameterType.STRING, "Head build number", required=True),
+            ],
+            handler=compare_builds_handler,
+        )
+    )
 
     # check_job_health
     async def check_job_health_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
@@ -164,21 +174,23 @@ Use:
 - get_job to get job details and health reports
 - get_build for last successful and last failed builds
 - triage_failure if recent builds are failing
-"""
-                }
+""",
+                },
             }
         ]
 
         return messages
 
-    mcp_server.register_prompt(Prompt(
-        name="check_job_health",
-        description="Check overall health and stability of a job",
-        arguments=[
-            ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
-        ],
-        handler=check_job_health_handler
-    ))
+    mcp_server.register_prompt(
+        Prompt(
+            name="check_job_health",
+            description="Check overall health and stability of a job",
+            arguments=[
+                ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
+            ],
+            handler=check_job_health_handler,
+        )
+    )
 
     # trigger_with_params
     async def trigger_with_params_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
@@ -205,22 +217,29 @@ Use:
 - get_job to see job configuration and parameters
 - trigger_build with appropriate parameters
 - summarize_queue to check build was queued
-"""
-                }
+""",
+                },
             }
         ]
 
         return messages
 
-    mcp_server.register_prompt(Prompt(
-        name="trigger_with_params",
-        description="Trigger a parameterized build with guidance",
-        arguments=[
-            ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
-            ToolParameter("parameters", ToolParameterType.STRING, "Description of parameters to use", required=False),
-        ],
-        handler=trigger_with_params_handler
-    ))
+    mcp_server.register_prompt(
+        Prompt(
+            name="trigger_with_params",
+            description="Trigger a parameterized build with guidance",
+            arguments=[
+                ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
+                ToolParameter(
+                    "parameters",
+                    ToolParameterType.STRING,
+                    "Description of parameters to use",
+                    required=False,
+                ),
+            ],
+            handler=trigger_with_params_handler,
+        )
+    )
 
     # search_logs
     async def search_logs_handler(args: dict[str, Any]) -> list[dict[str, Any]]:
@@ -243,20 +262,29 @@ Pattern: {pattern}
 Please use search_log to find all occurrences of the pattern with context.
 Show the matching lines and their context to help understand where and why
 the pattern appears in the build log.
-"""
-                }
+""",
+                },
             }
         ]
 
         return messages
 
-    mcp_server.register_prompt(Prompt(
-        name="search_logs",
-        description="Search build logs for a specific pattern or error",
-        arguments=[
-            ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
-            ToolParameter("pattern", ToolParameterType.STRING, "Pattern to search for (regex)", required=True),
-            ToolParameter("build", ToolParameterType.STRING, "Build number or 'last'", required=False),
-        ],
-        handler=search_logs_handler
-    ))
+    mcp_server.register_prompt(
+        Prompt(
+            name="search_logs",
+            description="Search build logs for a specific pattern or error",
+            arguments=[
+                ToolParameter("job", ToolParameterType.STRING, "Job name", required=True),
+                ToolParameter(
+                    "pattern",
+                    ToolParameterType.STRING,
+                    "Pattern to search for (regex)",
+                    required=True,
+                ),
+                ToolParameter(
+                    "build", ToolParameterType.STRING, "Build number or 'last'", required=False
+                ),
+            ],
+            handler=search_logs_handler,
+        )
+    )
