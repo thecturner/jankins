@@ -36,7 +36,7 @@ class JankinsServer:
         self.jenkins_adapter = JenkinsAdapter(config)
 
         # Create MCP server
-        self.mcp_server = MCPServer(name="jankins", version="0.2.0")
+        self.mcp_server = MCPServer(name="jankins", version="0.2.1")
 
         # Register tools and prompts
         register_all_tools(self.mcp_server, self.jenkins_adapter, self.config)

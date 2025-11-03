@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-01-XX
+
+### Fixed
+- Configuration now ignores extra environment variables from .env files in working directory
+- Prevents "extra inputs are not allowed" error when starting from directories with project .env files
+
 ## [0.2.0] - 2025-01-XX
 
 ### Added
@@ -90,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Superior log handling with progressive retrieval
 - Advanced triage capabilities not available in other solutions
 - Build comparison tool for regression analysis
-- Token-optimized responses for efficient output
+- Token-optimized responses for AI assistants
 - Extensive documentation and examples
 
 [Unreleased]: https://github.com/thecturner/jankins/compare/v0.2.0...HEAD
