@@ -1,7 +1,9 @@
 """Tests for Blue Ocean API integration."""
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import Mock, patch
+
 from jankins.jenkins.blueocean import BlueOceanClient
 
 

@@ -1,7 +1,9 @@
 """Tests for rate limiting."""
 
-import pytest
 import time
+
+import pytest
+
 from jankins.middleware.ratelimit import RateLimitBucket, RateLimiter
 
 

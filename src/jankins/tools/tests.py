@@ -1,16 +1,15 @@
 """Test result analysis tools."""
 
+import logging
 import time
 import uuid
-import logging
-from typing import Dict, Any
+from typing import Any
 
-from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
-from ..formatters import OutputFormat, TokenAwareFormatter
-from ..logging_utils import RequestLogger
-from ..jenkins.testresults import TestResultParser
 from ..errors import InvalidParamsError
-
+from ..formatters import OutputFormat, TokenAwareFormatter
+from ..jenkins.testresults import TestResultParser
+from ..logging_utils import RequestLogger
+from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
     test_parser = TestResultParser(jenkins_adapter)
 
     # get_test_report
-    async def get_test_report_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_test_report_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -101,7 +100,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # get_failed_tests
-    async def get_failed_tests_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_failed_tests_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -171,7 +170,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # compare_test_results
-    async def compare_test_results_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def compare_test_results_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -204,7 +203,7 @@ def register_test_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # detect_flaky_tests
-    async def detect_flaky_tests_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def detect_flaky_tests_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 

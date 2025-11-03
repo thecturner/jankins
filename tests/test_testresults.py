@@ -1,11 +1,11 @@
 """Tests for test result parsing."""
 
 import pytest
+
 from jankins.jenkins.testresults import (
-    TestResultParser,
     TestReport,
+    TestResultParser,
     TestSuite,
-    TestCase,
 )
 
 
@@ -111,16 +111,16 @@ class TestTestResultParser:
     def test_flaky_test_detection(self):
         """Test detecting flaky tests across builds."""
         # This would test the detect_flaky_tests logic
-        # For now, basic structure test
-        parser = TestResultParser()
+        # For now, basic structure test - placeholder for future implementation
+        # parser = TestResultParser()
 
-        builds_data = [
-            {"name": "test_foo", "status": "PASSED"},
-            {"name": "test_foo", "status": "FAILED"},
-            {"name": "test_foo", "status": "PASSED"},
-            {"name": "test_bar", "status": "PASSED"},
-            {"name": "test_bar", "status": "PASSED"},
-        ]
+        # builds_data = [
+        #     {"name": "test_foo", "status": "PASSED"},
+        #     {"name": "test_foo", "status": "FAILED"},
+        #     {"name": "test_foo", "status": "PASSED"},
+        #     {"name": "test_bar", "status": "PASSED"},
+        #     {"name": "test_bar", "status": "PASSED"},
+        # ]
 
         # test_foo changes status - flaky
         # test_bar consistent - not flaky

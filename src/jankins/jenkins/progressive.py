@@ -4,13 +4,11 @@ Uses Jenkins progressiveText API for efficient log streaming and retrieval
 with byte offsets, avoiding full log downloads.
 """
 
-import re
 import logging
-from typing import Optional, Tuple, List
+import re
 from dataclasses import dataclass
 
 from .adapter import JenkinsAdapter
-
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +29,8 @@ class LogSummary:
     total_lines: int
     error_count: int
     warning_count: int
-    last_error_lines: List[str]
-    failing_stages: List[str]
+    last_error_lines: list[str]
+    failing_stages: list[str]
     is_complete: bool
 
 
@@ -54,7 +52,7 @@ class ProgressiveLogClient:
         job_name: str,
         build_number: int,
         start: int = 0,
-    ) -> Tuple[str, int, bool]:
+    ) -> tuple[str, int, bool]:
         """Get progressive log text from Jenkins.
 
         Args:
@@ -85,7 +83,7 @@ class ProgressiveLogClient:
         job_name: str,
         build_number: int,
         start: int = 0,
-        max_bytes: Optional[int] = None,
+        max_bytes: int | None = None,
     ) -> LogChunk:
         """Get a chunk of log with byte limit.
 
@@ -145,8 +143,8 @@ class ProgressiveLogClient:
     def filter_log(
         self,
         text: str,
-        pattern: Optional[str] = None,
-        include_levels: Optional[List[str]] = None,
+        pattern: str | None = None,
+        include_levels: list[str] | None = None,
         redact: bool = False,
     ) -> str:
         """Filter and process log text.
@@ -236,7 +234,7 @@ class ProgressiveLogClient:
         pattern: str,
         window_lines: int = 5,
         max_bytes: int = 1048576,  # 1MB default
-    ) -> List[Tuple[int, str]]:
+    ) -> list[tuple[int, str]]:
         """Search log for pattern and return matching lines with context.
 
         Args:

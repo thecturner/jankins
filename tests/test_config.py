@@ -1,6 +1,5 @@
 """Test configuration management."""
 
-import pytest
 from jankins.config import JankinsConfig
 
 

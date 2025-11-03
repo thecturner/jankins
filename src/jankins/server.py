@@ -1,15 +1,13 @@
 """Main server module that orchestrates MCP server components."""
 
 import logging
-from typing import Optional
 
 from .config import JankinsConfig
 from .jenkins import JenkinsAdapter
-from .mcp import MCPServer, create_transport
-from .tools import register_all_tools
-from .prompts import register_prompts
 from .logging_utils import setup_logging
-
+from .mcp import MCPServer, create_transport
+from .prompts import register_prompts
+from .tools import register_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +41,7 @@ class JankinsServer:
         register_prompts(self.mcp_server, self.jenkins_adapter, self.config)
 
         logger.info(
-            f"Initialized jankins MCP server",
+            "Initialized jankins MCP server",
             extra={
                 "jenkins_url": config.jenkins_url,
                 "transport": config.mcp_transport,

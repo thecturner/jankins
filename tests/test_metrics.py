@@ -1,7 +1,6 @@
 """Tests for metrics collection."""
 
 import pytest
-from jankins.metrics import MetricsCollector
 
 
 @pytest.mark.unit

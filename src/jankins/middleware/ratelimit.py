@@ -1,10 +1,9 @@
 """Rate limiting middleware for MCP requests."""
 
-import time
 import logging
-from typing import Dict, Tuple, Optional
-from collections import defaultdict
+import time
 from dataclasses import dataclass, field
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -96,7 +95,7 @@ class RateLimiter:
         self.refill_rate = requests_per_minute / 60.0  # Convert to per-second
 
         # User/IP -> RateLimitBucket
-        self.buckets: Dict[str, RateLimitBucket] = {}
+        self.buckets: dict[str, RateLimitBucket] = {}
         self.last_cleanup = time.time()
         self.cleanup_interval = cleanup_interval
 
@@ -104,7 +103,7 @@ class RateLimiter:
             f"Rate limiter initialized: {requests_per_minute} req/min, burst={burst}"
         )
 
-    def check_rate_limit(self, identifier: str) -> Tuple[bool, Optional[float]]:
+    def check_rate_limit(self, identifier: str) -> tuple[bool, float | None]:
         """Check if request is within rate limit.
 
         Args:
@@ -160,7 +159,7 @@ class RateLimiter:
 
         self.last_cleanup = now
 
-    def get_stats(self) -> Dict[str, any]:
+    def get_stats(self) -> dict[str, any]:
         """Get rate limiter statistics.
 
         Returns:

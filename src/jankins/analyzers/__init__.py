@@ -1,10 +1,9 @@
 """Pluggable log analyzers for different build tools."""
 
-from .base import LogAnalyzer, AnalysisResult
-from .maven import MavenAnalyzer
+from .base import AnalysisResult, LogAnalyzer
 from .gradle import GradleAnalyzer
+from .maven import MavenAnalyzer
 from .npm import NpmAnalyzer
-
 
 __all__ = [
     "LogAnalyzer",

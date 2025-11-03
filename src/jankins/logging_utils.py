@@ -1,14 +1,14 @@
 """Structured logging utilities with correlation IDs and context."""
 
-import logging
 import json
+import logging
 import time
-from typing import Optional, Any
 from contextvars import ContextVar
 from datetime import datetime
+from typing import Any
 
 # Context variable for correlation ID
-correlation_id_var: ContextVar[Optional[str]] = ContextVar("correlation_id", default=None)
+correlation_id_var: ContextVar[str | None] = ContextVar("correlation_id", default=None)
 
 
 class StructuredFormatter(logging.Formatter):
@@ -95,7 +95,7 @@ class RequestLogger:
         self.logger = logger
         self.tool_name = tool_name
         self.correlation_id = correlation_id
-        self.start_time: Optional[float] = None
+        self.start_time: float | None = None
 
     def __enter__(self) -> "RequestLogger":
         """Start request logging."""
@@ -128,7 +128,7 @@ class RequestLogger:
         correlation_id_var.set(None)
 
 
-def get_correlation_id() -> Optional[str]:
+def get_correlation_id() -> str | None:
     """Get current correlation ID from context."""
     return correlation_id_var.get()
 

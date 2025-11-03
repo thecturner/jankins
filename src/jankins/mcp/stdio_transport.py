@@ -4,15 +4,13 @@ This transport is used by MCP clients like Claude Desktop that communicate
 with servers over standard input/output streams.
 """
 
-import sys
+import asyncio
 import json
 import logging
-import asyncio
-from typing import Optional
+import sys
 
-from .protocol import MCPServer
 from ..errors import JankinsError
-
+from .protocol import MCPServer
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +91,7 @@ async def run_stdio_server(mcp_server: MCPServer) -> None:
                 }
                 write_response(error_response)
 
-    except Exception as e:
+    except Exception:
         logger.exception("Fatal error in stdio server")
         sys.exit(1)
 
@@ -211,5 +209,5 @@ def write_response(response: dict) -> None:
         else:
             logger.debug(f"Sending response: {response_json[:100]}...")
         print(response_json, flush=True)
-    except Exception as e:
+    except Exception:
         logger.exception("Error writing response to stdout")

@@ -4,7 +4,8 @@ Environment variables and CLI flags with proper precedence:
 CLI flags > Environment variables > Defaults
 """
 
-from typing import Literal, Optional
+from typing import Literal
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -58,7 +59,7 @@ class JankinsConfig(BaseSettings):
         description="Enforce Origin header validation",
         validation_alias="ORIGIN_ENFORCE"
     )
-    origin_expected: Optional[str] = Field(
+    origin_expected: str | None = Field(
         default=None,
         description="Expected Origin header value",
         validation_alias="ORIGIN_EXPECTED"

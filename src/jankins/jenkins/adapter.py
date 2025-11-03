@@ -5,20 +5,21 @@ fallback for progressive logs and Blue Ocean API.
 """
 
 import logging
-from typing import Optional, Dict, Any, List
-import jenkins
+from typing import Any
+
 import httpx
-from urllib.parse import urljoin, quote
+import jenkins
 
 from ..config import JankinsConfig
 from ..errors import (
     JankinsError,
     UnauthorizedError,
-    map_http_error,
-    TimeoutError as JankinsTimeoutError,
     UpstreamError,
+    map_http_error,
 )
-
+from ..errors import (
+    TimeoutError as JankinsTimeoutError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +33,8 @@ class JenkinsAdapter:
 
     def __init__(self, config: JankinsConfig):
         self.config = config
-        self._server: Optional[jenkins.Jenkins] = None
-        self._http_client: Optional[httpx.Client] = None
+        self._server: jenkins.Jenkins | None = None
+        self._http_client: httpx.Client | None = None
 
     @property
     def server(self) -> jenkins.Jenkins:
@@ -76,14 +77,14 @@ class JenkinsAdapter:
 
     # Job operations
 
-    def get_all_jobs(self, folder_depth: int = 0) -> List[Dict[str, Any]]:
+    def get_all_jobs(self, folder_depth: int = 0) -> list[dict[str, Any]]:
         """Get all jobs with optional folder depth."""
         try:
             return self.server.get_all_jobs(folder_depth=folder_depth)
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, "list jobs")
 
-    def get_job_info(self, name: str) -> Dict[str, Any]:
+    def get_job_info(self, name: str) -> dict[str, Any]:
         """Get job information."""
         try:
             return self.server.get_job_info(name)
@@ -93,7 +94,7 @@ class JenkinsAdapter:
         except jenkins.JenkinsException as e:
             raise self._map_jenkins_exception(e, f"get job '{name}'")
 
-    def build_job(self, name: str, parameters: Optional[Dict[str, Any]] = None) -> int:
+    def build_job(self, name: str, parameters: dict[str, Any] | None = None) -> int:
         """Trigger a job build.
 
         Returns:
@@ -129,7 +130,7 @@ class JenkinsAdapter:
 
     # Build operations
 
-    def get_build_info(self, name: str, number: int) -> Dict[str, Any]:
+    def get_build_info(self, name: str, number: int) -> dict[str, Any]:
         """Get build information."""
         try:
             return self.server.get_build_info(name, number)
@@ -160,7 +161,7 @@ class JenkinsAdapter:
 
     # Queue operations
 
-    def get_queue_info(self) -> List[Dict[str, Any]]:
+    def get_queue_info(self) -> list[dict[str, Any]]:
         """Get build queue information."""
         try:
             return self.server.get_queue_info()
@@ -169,7 +170,7 @@ class JenkinsAdapter:
 
     # User and system info
 
-    def get_whoami(self) -> Dict[str, Any]:
+    def get_whoami(self) -> dict[str, Any]:
         """Get current user information."""
         try:
             return self.server.get_whoami()
@@ -185,7 +186,7 @@ class JenkinsAdapter:
 
     # Direct REST calls for advanced features
 
-    def rest_get(self, path: str, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    def rest_get(self, path: str, params: dict[str, Any] | None = None) -> httpx.Response:
         """Make a GET request to Jenkins REST API.
 
         Args:
@@ -210,7 +211,7 @@ class JenkinsAdapter:
             response.raise_for_status()
             return response
 
-        except httpx.TimeoutException as e:
+        except httpx.TimeoutException:
             raise JankinsTimeoutError(f"Request to {path} timed out")
         except httpx.HTTPStatusError as e:
             raise map_http_error(e.response.status_code, str(e))
@@ -220,8 +221,8 @@ class JenkinsAdapter:
     def rest_post(
         self,
         path: str,
-        json: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
+        json: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
     ) -> httpx.Response:
         """Make a POST request to Jenkins REST API."""
         try:

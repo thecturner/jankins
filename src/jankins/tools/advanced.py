@@ -1,19 +1,17 @@
 """Advanced analysis tools for failure triage and comparison."""
 
+import logging
 import time
 import uuid
-import logging
-import re
-from typing import Dict, Any, List
+from typing import Any
 
-from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
-from ..formatters import OutputFormat, TokenAwareFormatter
-from ..logging_utils import RequestLogger
-from ..jenkins.progressive import ProgressiveLogClient
-from ..jenkins.blueocean import BlueOceanClient
-from ..analyzers import get_analyzer, MavenAnalyzer, GradleAnalyzer, NpmAnalyzer
+from ..analyzers import GradleAnalyzer, MavenAnalyzer, NpmAnalyzer, get_analyzer
 from ..errors import InvalidParamsError
-
+from ..formatters import OutputFormat, TokenAwareFormatter
+from ..jenkins.blueocean import BlueOceanClient
+from ..jenkins.progressive import ProgressiveLogClient
+from ..logging_utils import RequestLogger
+from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +23,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
     blue_ocean_client = BlueOceanClient(jenkins_adapter)
 
     # triage_failure
-    async def triage_failure_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def triage_failure_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -124,7 +122,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # compare_runs
-    async def compare_runs_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def compare_runs_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -142,8 +140,8 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
             # Calculate duration delta
             duration_delta = head_build.get("duration", 0) - base_build.get("duration", 0)
 
-            # Compare results
-            result_changed = base_build.get("result") != head_build.get("result")
+            # Compare results (for future use in detailed comparison)
+            # result_changed = base_build.get("result") != head_build.get("result")
 
             # Stage comparison with Blue Ocean API
             try:
@@ -184,7 +182,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # get_pipeline_graph
-    async def get_pipeline_graph_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_pipeline_graph_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -264,7 +262,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # analyze_build_log
-    async def analyze_build_log_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze_build_log_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -369,7 +367,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # retry_flaky_build
-    async def retry_flaky_build_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def retry_flaky_build_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -458,7 +456,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
     ))
 
 
-def _generate_hypotheses(error_lines: List[str]) -> List[str]:
+def _generate_hypotheses(error_lines: list[str]) -> list[str]:
     """Generate failure hypotheses based on error patterns."""
     hypotheses = []
 
@@ -497,10 +495,10 @@ def _generate_hypotheses(error_lines: List[str]) -> List[str]:
 
 
 def _generate_next_steps(
-    failing_stages: List[str],
-    error_lines: List[str],
+    failing_stages: list[str],
+    error_lines: list[str],
     has_changes: bool
-) -> List[str]:
+) -> list[str]:
     """Generate recommended next steps for failure investigation."""
     steps = []
 

@@ -1,7 +1,7 @@
 """Base formatter types and utilities."""
 
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 
 class OutputFormat(str, Enum):
@@ -14,7 +14,7 @@ class OutputFormat(str, Enum):
     TABLE = "table"      # Compact table format
 
 
-def compact_dict(data: Dict[str, Any], include_keys: List[str]) -> Dict[str, Any]:
+def compact_dict(data: dict[str, Any], include_keys: list[str]) -> dict[str, Any]:
     """Extract only specified keys from dict."""
     return {k: data.get(k) for k in include_keys if k in data}
 

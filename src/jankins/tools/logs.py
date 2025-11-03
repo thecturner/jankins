@@ -1,16 +1,15 @@
 """Log-related MCP tools with smart truncation and filtering."""
 
+import logging
 import time
 import uuid
-import logging
-from typing import Dict, Any
+from typing import Any
 
-from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
-from ..formatters import OutputFormat, TokenAwareFormatter
-from ..logging_utils import RequestLogger
-from ..jenkins.progressive import ProgressiveLogClient
 from ..errors import InvalidParamsError
-
+from ..formatters import OutputFormat, TokenAwareFormatter
+from ..jenkins.progressive import ProgressiveLogClient
+from ..logging_utils import RequestLogger
+from ..mcp.protocol import Tool, ToolParameter, ToolParameterType
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
     log_client = ProgressiveLogClient(jenkins_adapter)
 
     # get_build_log
-    async def get_log_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def get_log_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -100,7 +99,7 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # search_log
-    async def search_log_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def search_log_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 
@@ -159,7 +158,7 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
     ))
 
     # tail_log_live (polling-based live tail)
-    async def tail_log_live_handler(args: Dict[str, Any]) -> Dict[str, Any]:
+    async def tail_log_live_handler(args: dict[str, Any]) -> dict[str, Any]:
         correlation_id = str(uuid.uuid4())
         start_time = time.time()
 

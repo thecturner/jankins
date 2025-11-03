@@ -4,12 +4,12 @@ Implements MCP version 2025-06-18 with proper capabilities and tool handling.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Callable, Awaitable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
 
-from ..errors import JankinsError, InvalidParamsError
-
+from ..errors import InvalidParamsError, JankinsError
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +33,8 @@ class ToolParameter:
     type: ToolParameterType
     description: str
     required: bool = False
-    default: Optional[Any] = None
-    enum: Optional[List[str]] = None
+    default: Any | None = None
+    enum: list[str] | None = None
 
 
 @dataclass
@@ -42,10 +42,10 @@ class Tool:
     """MCP tool definition."""
     name: str
     description: str
-    parameters: List[ToolParameter] = field(default_factory=list)
-    handler: Optional[Callable[[Dict[str, Any]], Awaitable[Dict[str, Any]]]] = None
+    parameters: list[ToolParameter] = field(default_factory=list)
+    handler: Callable[[dict[str, Any]], Awaitable[dict[str, Any]]] | None = None
 
-    def to_schema(self) -> Dict[str, Any]:
+    def to_schema(self) -> dict[str, Any]:
         """Convert tool to MCP schema format."""
         schema = {
             "name": self.name,
@@ -58,7 +58,7 @@ class Tool:
         }
 
         for param in self.parameters:
-            param_schema: Dict[str, Any] = {
+            param_schema: dict[str, Any] = {
                 "type": param.type.value,
                 "description": param.description,
             }
@@ -82,10 +82,10 @@ class Prompt:
     """MCP prompt definition."""
     name: str
     description: str
-    arguments: List[ToolParameter] = field(default_factory=list)
-    handler: Optional[Callable[[Dict[str, Any]], Awaitable[List[Dict[str, Any]]]]] = None
+    arguments: list[ToolParameter] = field(default_factory=list)
+    handler: Callable[[dict[str, Any]], Awaitable[list[dict[str, Any]]]] | None = None
 
-    def to_schema(self) -> Dict[str, Any]:
+    def to_schema(self) -> dict[str, Any]:
         """Convert prompt to MCP schema format."""
         schema = {
             "name": self.name,
@@ -114,8 +114,8 @@ class MCPServer:
     def __init__(self, name: str = "jankins", version: str = "0.1.0"):
         self.name = name
         self.version = version
-        self.tools: Dict[str, Tool] = {}
-        self.prompts: Dict[str, Prompt] = {}
+        self.tools: dict[str, Tool] = {}
+        self.prompts: dict[str, Prompt] = {}
 
     def register_tool(self, tool: Tool) -> None:
         """Register a tool with the server."""
@@ -127,7 +127,7 @@ class MCPServer:
         self.prompts[prompt.name] = prompt
         logger.debug(f"Registered prompt: {prompt.name}")
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get server capabilities."""
         return {
             "capabilities": {
@@ -145,15 +145,15 @@ class MCPServer:
             "protocolVersion": MCP_VERSION,
         }
 
-    def list_tools(self) -> List[Dict[str, Any]]:
+    def list_tools(self) -> list[dict[str, Any]]:
         """List all registered tools."""
         return [tool.to_schema() for tool in self.tools.values()]
 
-    def list_prompts(self) -> List[Dict[str, Any]]:
+    def list_prompts(self) -> list[dict[str, Any]]:
         """List all registered prompts."""
         return [prompt.to_schema() for prompt in self.prompts.values()]
 
-    async def call_tool(self, name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Call a tool by name with arguments.
 
         Args:
@@ -202,7 +202,7 @@ class MCPServer:
                 hint="Check server logs for details"
             )
 
-    async def get_prompt(self, name: str, arguments: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def get_prompt(self, name: str, arguments: dict[str, Any]) -> list[dict[str, Any]]:
         """Get prompt messages by name.
 
         Args:
@@ -238,7 +238,7 @@ class MCPServer:
                 hint="Check server logs for details"
             )
 
-    def handle_jsonrpc(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    def handle_jsonrpc(self, request: dict[str, Any]) -> dict[str, Any]:
         """Handle a JSON-RPC 2.0 request.
 
         This is a synchronous wrapper that routes to async handlers.

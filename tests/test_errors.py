@@ -1,11 +1,11 @@
 """Test error handling."""
 
 from jankins.errors import (
-    JankinsError,
-    InvalidParamsError,
-    UnauthorizedError,
-    NotFoundError,
     ErrorCode,
+    InvalidParamsError,
+    JankinsError,
+    NotFoundError,
+    UnauthorizedError,
     map_http_error,
 )
 

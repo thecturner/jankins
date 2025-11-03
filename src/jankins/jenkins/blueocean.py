@@ -8,10 +8,10 @@ Blue Ocean provides richer pipeline data including:
 """
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Any
 from urllib.parse import quote
 
-from ..errors import NotFoundError, UpstreamError
+from ..errors import NotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class BlueOceanClient:
 
     def get_pipeline_run(
         self, job_name: str, build_number: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get Blue Ocean pipeline run data.
 
         Args:
@@ -60,7 +60,7 @@ class BlueOceanClient:
 
     def get_pipeline_nodes(
         self, job_name: str, build_number: int
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get pipeline execution nodes (stages and steps).
 
         Args:
@@ -82,7 +82,7 @@ class BlueOceanClient:
 
     def get_node_steps(
         self, job_name: str, build_number: int, node_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get steps within a pipeline node.
 
         Args:
@@ -105,7 +105,7 @@ class BlueOceanClient:
 
     def get_pipeline_graph(
         self, job_name: str, build_number: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get complete pipeline graph with stages and parallel execution.
 
         This provides the full execution graph including:
@@ -168,7 +168,7 @@ class BlueOceanClient:
 
     def get_failing_stages_detailed(
         self, job_name: str, build_number: int
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get detailed information about failing stages.
 
         Args:
@@ -213,7 +213,7 @@ class BlueOceanClient:
 
     def compare_pipeline_runs(
         self, job_name: str, base_build: int, head_build: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compare two pipeline runs for performance and result differences.
 
         Args:

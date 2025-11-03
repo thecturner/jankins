@@ -1,9 +1,9 @@
 """Base classes for log analyzers."""
 
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
-import re
+from typing import Any
 
 
 @dataclass
@@ -12,17 +12,17 @@ class AnalysisResult:
 
     build_tool: str
     detected: bool
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    issues: List[Dict[str, Any]] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    issues: list[dict[str, Any]] = field(default_factory=list)
 
     # Build tool specific metrics
-    dependencies_failed: List[str] = field(default_factory=list)
+    dependencies_failed: list[str] = field(default_factory=list)
     compilation_errors: int = 0
     test_failures: int = 0
 
     # Recommendations
-    recommendations: List[str] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
 
     # Summary
     summary: str = ""
@@ -39,7 +39,7 @@ class LogAnalyzer(ABC):
 
     @property
     @abstractmethod
-    def detection_patterns(self) -> List[str]:
+    def detection_patterns(self) -> list[str]:
         """Regex patterns to detect if this tool was used."""
         pass
 
@@ -69,7 +69,7 @@ class LogAnalyzer(ABC):
                 return True
         return False
 
-    def extract_errors(self, log_content: str, patterns: List[str]) -> List[str]:
+    def extract_errors(self, log_content: str, patterns: list[str]) -> list[str]:
         """Extract error messages using patterns.
 
         Args:
@@ -97,7 +97,7 @@ class LogAnalyzer(ABC):
 
         return unique_errors[:20]  # Top 20
 
-    def extract_warnings(self, log_content: str, patterns: List[str]) -> List[str]:
+    def extract_warnings(self, log_content: str, patterns: list[str]) -> list[str]:
         """Extract warning messages using patterns.
 
         Args:

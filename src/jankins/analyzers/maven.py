@@ -1,8 +1,8 @@
 """Maven build log analyzer."""
 
 import re
-from typing import List
-from .base import LogAnalyzer, AnalysisResult
+
+from .base import AnalysisResult, LogAnalyzer
 
 
 class MavenAnalyzer(LogAnalyzer):
@@ -13,7 +13,7 @@ class MavenAnalyzer(LogAnalyzer):
         return "maven"
 
     @property
-    def detection_patterns(self) -> List[str]:
+    def detection_patterns(self) -> list[str]:
         return [
             r"Apache Maven \d+\.\d+",
             r"\[INFO\] Building .* \d+\.\d+",
@@ -85,7 +85,7 @@ class MavenAnalyzer(LogAnalyzer):
 
         return result
 
-    def _parse_maven_issues(self, log_content: str) -> List[dict]:
+    def _parse_maven_issues(self, log_content: str) -> list[dict]:
         """Parse Maven-specific issues from log.
 
         Args:
@@ -142,7 +142,7 @@ class MavenAnalyzer(LogAnalyzer):
 
         return issues
 
-    def _generate_recommendations(self, result: AnalysisResult) -> List[str]:
+    def _generate_recommendations(self, result: AnalysisResult) -> list[str]:
         """Generate recommendations based on analysis.
 
         Args:

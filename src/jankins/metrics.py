@@ -3,13 +3,11 @@
 Tracks request counts, durations, errors, and Jenkins API calls.
 """
 
-import time
 import logging
-from typing import Dict, List
-from collections import defaultdict, Counter
+import time
+from collections import Counter
 from dataclasses import dataclass, field
 from threading import Lock
-
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +67,7 @@ class MetricsCollector:
     def __init__(self):
         """Initialize metrics collector."""
         self.summary = MetricsSummary()
-        self._durations: List[float] = []
+        self._durations: list[float] = []
         self._lock = Lock()
 
         logger.info("Metrics collector initialized")
@@ -156,7 +154,7 @@ class MetricsCollector:
             index = min(index, len(sorted_durations) - 1)
             return sorted_durations[index]
 
-    def get_summary(self) -> Dict:
+    def get_summary(self) -> dict:
         """Get metrics summary.
 
         Returns:
