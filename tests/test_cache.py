@@ -13,27 +13,30 @@ class TestResponseCache:
 
     def test_cache_init(self, response_cache):
         """Test cache initialization."""
-        assert response_cache.ttl_seconds == 60
-        assert response_cache.max_size == 100
-        assert response_cache.stats["hits"] == 0
-        assert response_cache.stats["misses"] == 0
+        assert response_cache.ttl == 60
+        assert response_cache.max_entries == 100
+        stats = response_cache.get_stats()
+        assert stats["hits"] == 0
+        assert stats["misses"] == 0
 
     def test_cache_set_and_get(self, response_cache):
         """Test setting and getting cached values."""
         response_cache.set("key1", {"data": "value1"})
         result = response_cache.get("key1")
         assert result == {"data": "value1"}
-        assert response_cache.stats["hits"] == 1
+        stats = response_cache.get_stats()
+        assert stats["hits"] == 1
 
     def test_cache_miss(self, response_cache):
         """Test cache miss."""
         result = response_cache.get("nonexistent")
         assert result is None
-        assert response_cache.stats["misses"] == 1
+        stats = response_cache.get_stats()
+        assert stats["misses"] == 1
 
     def test_cache_expiration(self):
         """Test cache TTL expiration."""
-        cache = ResponseCache(ttl_seconds=1, max_size=10)
+        cache = ResponseCache(ttl=1, max_entries=10)
         cache.set("key1", "value1")
 
         # Should be cached
@@ -47,7 +50,7 @@ class TestResponseCache:
 
     def test_cache_max_size(self):
         """Test cache size limit."""
-        cache = ResponseCache(ttl_seconds=60, max_size=3)
+        cache = ResponseCache(ttl=60, max_entries=3)
 
         cache.set("key1", "value1")
         cache.set("key2", "value2")
@@ -86,13 +89,14 @@ class TestResponseCache:
         stats = response_cache.get_stats()
         assert stats["hits"] == 2
         assert stats["misses"] == 1
-        assert stats["size"] == 1
-        assert stats["hit_rate"] == 2.0 / 3.0
+        assert stats["entries"] == 1
+        # hit_rate is returned as percentage (0-100) not ratio (0-1)
+        assert stats["hit_rate"] == round(2.0 / 3.0 * 100, 2)
 
     def test_cache_invalidate(self, response_cache):
         """Test cache invalidation."""
         response_cache.set("key1", "value1")
         assert response_cache.get("key1") == "value1"
 
-        response_cache.invalidate("key1")
+        response_cache.delete("key1")
         assert response_cache.get("key1") is None

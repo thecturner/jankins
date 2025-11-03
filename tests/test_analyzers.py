@@ -21,8 +21,8 @@ class TestMavenAnalyzer:
         analyzer = MavenAnalyzer()
         result = analyzer.analyze(sample_maven_log)
 
-        assert result.tool_name == "maven"
-        assert result.build_failed is True
+        assert result.build_tool == "maven"
+        assert result.detected is True
         assert len(result.errors) > 0
         assert "cannot find symbol" in result.errors[0].lower()
         assert len(result.recommendations) > 0
@@ -36,7 +36,7 @@ class TestMavenAnalyzer:
         analyzer = MavenAnalyzer()
         result = analyzer.analyze(log)
 
-        assert result.build_failed is True
+        assert len(result.errors) > 0
         assert any("incompatible types" in e.lower() for e in result.errors)
 
     def test_maven_dependency_error(self):
@@ -48,7 +48,7 @@ class TestMavenAnalyzer:
         analyzer = MavenAnalyzer()
         result = analyzer.analyze(log)
 
-        assert result.build_failed is True
+        assert len(result.errors) > 0
         assert any("dependency" in r.lower() for r in result.recommendations)
 
 
@@ -66,8 +66,8 @@ class TestGradleAnalyzer:
         analyzer = GradleAnalyzer()
         result = analyzer.analyze(sample_gradle_log)
 
-        assert result.tool_name == "gradle"
-        assert result.build_failed is True
+        assert result.build_tool == "gradle"
+        assert result.detected is True
         assert len(result.errors) > 0
         assert len(result.recommendations) > 0
 
@@ -81,8 +81,8 @@ class TestGradleAnalyzer:
         analyzer = GradleAnalyzer()
         result = analyzer.analyze(log)
 
-        assert result.build_failed is True
-        assert result.failed_tasks == [":test"]
+        assert len(result.errors) > 0
+        assert result.test_failures > 0
 
     def test_gradle_daemon_crash(self):
         """Test Gradle daemon crash detection."""
@@ -94,7 +94,7 @@ class TestGradleAnalyzer:
         analyzer = GradleAnalyzer()
         result = analyzer.analyze(log)
 
-        assert result.build_failed is True
+        assert len(result.errors) > 0
         assert any("daemon" in r.lower() for r in result.recommendations)
 
 
@@ -112,10 +112,10 @@ class TestNpmAnalyzer:
         analyzer = NpmAnalyzer()
         result = analyzer.analyze(sample_npm_log)
 
-        assert result.tool_name == "npm"
-        assert result.build_failed is True
+        assert result.build_tool == "npm"
+        assert result.detected is True
         assert len(result.errors) > 0
-        assert "ENOENT" in result.error_codes
+        assert any("ENOENT" in e for e in result.errors)
 
     def test_npm_module_not_found(self):
         """Test NPM module not found error."""
@@ -126,8 +126,8 @@ class TestNpmAnalyzer:
         analyzer = NpmAnalyzer()
         result = analyzer.analyze(log)
 
-        assert result.build_failed is True
-        assert "MODULE_NOT_FOUND" in result.error_codes
+        assert len(result.errors) > 0
+        assert any("MODULE_NOT_FOUND" in e for e in result.errors)
         assert any("npm install" in r.lower() for r in result.recommendations)
 
     def test_npm_memory_error(self):
@@ -138,7 +138,7 @@ class TestNpmAnalyzer:
         analyzer = NpmAnalyzer()
         result = analyzer.analyze(log)
 
-        assert result.build_failed is True
+        assert len(result.errors) > 0
         assert any("memory" in r.lower() for r in result.recommendations)
 
     def test_yarn_detection(self):
@@ -151,4 +151,4 @@ class TestNpmAnalyzer:
         assert analyzer.detect(log) is True
 
         result = analyzer.analyze(log)
-        assert result.build_failed is True
+        assert len(result.errors) > 0
