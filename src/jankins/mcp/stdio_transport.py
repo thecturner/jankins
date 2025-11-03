@@ -129,10 +129,20 @@ async def handle_stdio_request(
                         params.get("name"),
                         params.get("arguments", {})
                     )
+                    # Wrap result in MCP content format
+                    # MCP spec requires tool results in content array
+                    result_text = json.dumps(result, indent=2) if isinstance(result, dict) else str(result)
                     response = {
                         "jsonrpc": "2.0",
                         "id": request_id,
-                        "result": result
+                        "result": {
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": result_text
+                                }
+                            ]
+                        }
                     }
                 elif method == "prompts/get":
                     messages = await mcp_server.get_prompt(
@@ -195,7 +205,11 @@ def write_response(response: dict) -> None:
     """
     try:
         response_json = json.dumps(response)
-        logger.debug(f"Sending response: {response_json[:100]}...")
+        # Debug: log full response for troubleshooting
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"Writing to stdout: {response_json}")
+        else:
+            logger.debug(f"Sending response: {response_json[:100]}...")
         print(response_json, flush=True)
     except Exception as e:
         logger.exception("Error writing response to stdout")
