@@ -1,12 +1,14 @@
 """CLI entrypoint for jankins MCP server."""
 
 import sys
+import asyncio
 import click
 import uvicorn
 from typing import Optional
 
 from .config import JankinsConfig
 from .server import JankinsServer
+from .mcp.stdio_transport import run_stdio_server
 
 
 @click.command()
@@ -31,8 +33,8 @@ from .server import JankinsServer
 @click.option(
     "--transport",
     envvar="MCP_TRANSPORT",
-    type=click.Choice(["http", "sse"]),
-    default="http",
+    type=click.Choice(["http", "sse", "stdio"]),
+    default="stdio",
     help="MCP transport type (env: MCP_TRANSPORT)"
 )
 @click.option(
@@ -151,31 +153,47 @@ def main(
 
         # Create server
         server = JankinsServer(config)
-        app = server.create_app()
 
-        # Print startup info
-        click.echo(f"🚀 Starting jankins MCP server", err=True)
-        click.echo(f"   Jenkins: {config.jenkins_url}", err=True)
-        click.echo(f"   Transport: {config.mcp_transport}", err=True)
-        click.echo(f"   Bind: {config.mcp_bind}", err=True)
-        click.echo(f"   Tools: {len(server.mcp_server.tools)}", err=True)
-        click.echo(f"   Prompts: {len(server.mcp_server.prompts)}", err=True)
-        click.echo(f"", err=True)
-        click.echo(f"Endpoints:", err=True)
-        click.echo(f"  POST http://{config.mcp_bind}/mcp", err=True)
-        if config.mcp_transport == "sse":
-            click.echo(f"  GET  http://{config.mcp_bind}/sse", err=True)
-        click.echo(f"  GET  http://{config.mcp_bind}/_health", err=True)
-        click.echo(f"", err=True)
+        # Handle stdio mode separately
+        if config.mcp_transport == "stdio":
+            # stdio mode - communicate via stdin/stdout
+            # Log to stderr only
+            click.echo(f"🚀 Starting jankins MCP server (stdio mode)", err=True)
+            click.echo(f"   Jenkins: {config.jenkins_url}", err=True)
+            click.echo(f"   Tools: {len(server.mcp_server.tools)}", err=True)
+            click.echo(f"   Prompts: {len(server.mcp_server.prompts)}", err=True)
+            click.echo(f"   Ready for JSON-RPC messages on stdin", err=True)
+            click.echo(f"", err=True)
 
-        # Start server
-        uvicorn.run(
-            app,
-            host=config.bind_host,
-            port=config.bind_port,
-            log_level=log_level.lower(),
-            access_log=False,  # We handle logging ourselves
-        )
+            # Run stdio server
+            asyncio.run(run_stdio_server(server.mcp_server))
+        else:
+            # HTTP/SSE mode - start web server
+            app = server.create_app()
+
+            # Print startup info
+            click.echo(f"🚀 Starting jankins MCP server", err=True)
+            click.echo(f"   Jenkins: {config.jenkins_url}", err=True)
+            click.echo(f"   Transport: {config.mcp_transport}", err=True)
+            click.echo(f"   Bind: {config.mcp_bind}", err=True)
+            click.echo(f"   Tools: {len(server.mcp_server.tools)}", err=True)
+            click.echo(f"   Prompts: {len(server.mcp_server.prompts)}", err=True)
+            click.echo(f"", err=True)
+            click.echo(f"Endpoints:", err=True)
+            click.echo(f"  POST http://{config.mcp_bind}/mcp", err=True)
+            if config.mcp_transport == "sse":
+                click.echo(f"  GET  http://{config.mcp_bind}/sse", err=True)
+            click.echo(f"  GET  http://{config.mcp_bind}/_health", err=True)
+            click.echo(f"", err=True)
+
+            # Start server
+            uvicorn.run(
+                app,
+                host=config.bind_host,
+                port=config.bind_port,
+                log_level=log_level.lower(),
+                access_log=False,  # We handle logging ourselves
+            )
 
     except KeyboardInterrupt:
         click.echo("\n👋 Shutting down gracefully...", err=True)

@@ -157,7 +157,7 @@ A production-ready Jenkins MCP (Model Context Protocol) server with advanced fea
 1. **Direct Python**: `pip install -e . && jankins`
 2. **Docker**: `docker build -t jankins .`
 3. **Docker Compose**: Full stack with Jenkins
-4. **MCP Client**: Any MCP-compatible client
+4. **MCP Client**: Claude Desktop, Copilot, Cursor, etc.
 
 ## Token Optimization Techniques
 

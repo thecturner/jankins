@@ -41,8 +41,8 @@ class JankinsConfig(BaseSettings):
     )
 
     # MCP transport
-    mcp_transport: Literal["http", "sse"] = Field(
-        default="http",
+    mcp_transport: Literal["http", "sse", "stdio"] = Field(
+        default="stdio",
         description="MCP transport type",
         validation_alias="MCP_TRANSPORT"
     )

@@ -88,7 +88,7 @@ Use prompt: `investigate_failure` with job name
 
 ## Output Formats
 
-- `summary` - Default, compact output
+- `summary` - Default, compact (best for AI assistants)
 - `full` - Complete data
 - `diff` - Differences only
 - `ids` - URLs and IDs only
@@ -124,7 +124,7 @@ docker-compose up
 
 ## MCP Client Setup
 
-### Standard MCP Client
+### Claude Desktop (stdio mode - default)
 ```json
 {
   "mcpServers": {
@@ -140,6 +140,14 @@ docker-compose up
 }
 ```
 
+jankins uses stdio transport by default, which is the standard for MCP clients.
+
+### HTTP Mode (optional)
+For HTTP-based clients, explicitly set transport:
+```bash
+jankins --transport http
+```
+
 ## Getting Help
 
 - Full docs: `README.md`
@@ -151,4 +159,4 @@ docker-compose up
 1. Try the built-in prompts (`investigate_failure`, `check_job_health`)
 2. Explore all 25+ tools in README.md
 3. Customize with your own prompts
-4. Set up in your MCP client
+4. Set up in your AI assistant (Claude, Copilot, etc.)

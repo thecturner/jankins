@@ -55,8 +55,8 @@ Configuration via environment variables or CLI flags. CLI flags take precedence.
 | `--jenkins-url` | `JENKINS_URL` | *required* | Jenkins server URL |
 | `--jenkins-user` | `JENKINS_USER` | *required* | Jenkins username |
 | `--jenkins-token` | `JENKINS_API_TOKEN` | *required* | Jenkins API token |
-| `--transport` | `MCP_TRANSPORT` | `http` | MCP transport (`http` or `sse`) |
-| `--bind` | `MCP_BIND` | `127.0.0.1:8080` | Server bind address |
+| `--transport` | `MCP_TRANSPORT` | `stdio` | MCP transport (`stdio`, `http`, or `sse`) |
+| `--bind` | `MCP_BIND` | `127.0.0.1:8080` | Server bind address (http/sse only) |
 | `--origin-enforce` | `ORIGIN_ENFORCE` | `false` | Enforce Origin header validation |
 | `--origin-expected` | `ORIGIN_EXPECTED` | `null` | Expected Origin value |
 | `--log-level` | `LOG_LEVEL` | `INFO` | Log level (DEBUG/INFO/WARNING/ERROR) |
@@ -165,7 +165,7 @@ jankins includes pre-built prompts for common workflows:
 
 ## Client Examples
 
-### Claude Desktop
+### Claude Desktop (stdio mode - recommended)
 
 Add to your MCP settings:
 
@@ -184,9 +184,11 @@ Add to your MCP settings:
 }
 ```
 
-### GitHub Copilot / Cursor / Windsurf
+The default `stdio` transport communicates via stdin/stdout, which is the standard for MCP clients like Claude Desktop.
 
-Configure as an HTTP MCP server:
+### HTTP Mode (for HTTP-based MCP clients)
+
+If your client requires HTTP transport:
 
 ```json
 {
@@ -205,6 +207,12 @@ Configure as an HTTP MCP server:
 
 ### Direct HTTP Request
 
+Start in HTTP mode:
+```bash
+jankins --transport http
+```
+
+Then make requests:
 ```bash
 curl -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \

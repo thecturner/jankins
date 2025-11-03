@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2025-01-XX
 
+### Added
+- **stdio transport**: Default MCP transport for communication via stdin/stdout
+  - Standard for MCP clients like Claude Desktop
+  - Logs to stderr to avoid protocol interference
+  - Line-buffered JSON-RPC message handling
+
+### Changed
+- Default transport changed from `http` to `stdio`
+- `--bind` parameter now only applies to http/sse transports
+
 ### Fixed
 - Configuration now ignores extra environment variables from .env files in working directory
 - Prevents "extra inputs are not allowed" error when starting from directories with project .env files
