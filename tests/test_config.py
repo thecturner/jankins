@@ -6,25 +6,25 @@ from jankins.config import JankinsConfig
 def test_config_from_values():
     """Test creating config from values."""
     config = JankinsConfig(
-        jenkins_url="https://jenkins.example.com",
-        jenkins_user="myuser",
-        jenkins_api_token="mytoken",
+        JENKINS_URL="https://jenkins.example.com",
+        JENKINS_USER="myuser",
+        JENKINS_API_TOKEN="mytoken",
     )
 
     assert config.jenkins_url == "https://jenkins.example.com"
     assert config.jenkins_user == "myuser"
     assert config.jenkins_api_token == "mytoken"
-    assert config.mcp_transport == "http"  # Default
+    assert config.mcp_transport == "stdio"  # Default
     assert config.mcp_bind == "127.0.0.1:8080"  # Default
 
 
 def test_config_bind_parsing():
     """Test bind address parsing."""
     config = JankinsConfig(
-        jenkins_url="http://localhost",
-        jenkins_user="user",
-        jenkins_api_token="token",
-        mcp_bind="0.0.0.0:9000",
+        JENKINS_URL="http://localhost",
+        JENKINS_USER="user",
+        JENKINS_API_TOKEN="token",
+        MCP_BIND="0.0.0.0:9000",
     )
 
     assert config.bind_host == "0.0.0.0"
@@ -34,9 +34,9 @@ def test_config_bind_parsing():
 def test_config_defaults():
     """Test default configuration values."""
     config = JankinsConfig(
-        jenkins_url="http://localhost",
-        jenkins_user="user",
-        jenkins_api_token="token",
+        JENKINS_URL="http://localhost",
+        JENKINS_USER="user",
+        JENKINS_API_TOKEN="token",
     )
 
     assert config.log_level == "INFO"

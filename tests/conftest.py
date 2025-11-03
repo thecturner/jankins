@@ -16,12 +16,12 @@ from jankins.metrics import MetricsCollector
 def test_config():
     """Create test configuration."""
     return JankinsConfig(
-        jenkins_url="http://localhost:8080",
-        jenkins_user="test_user",
-        jenkins_api_token="test_token",
-        mcp_transport="http",
-        mcp_bind="127.0.0.1:8080",
-        log_level="DEBUG",
+        JENKINS_URL="http://localhost:8080",
+        JENKINS_USER="test_user",
+        JENKINS_API_TOKEN="test_token",
+        MCP_TRANSPORT="http",
+        MCP_BIND="127.0.0.1:8080",
+        LOG_LEVEL="DEBUG",
     )
 
 
@@ -29,11 +29,11 @@ def test_config():
 def test_config_stdio():
     """Create test configuration for stdio transport."""
     return JankinsConfig(
-        jenkins_url="http://localhost:8080",
-        jenkins_user="test_user",
-        jenkins_api_token="test_token",
-        mcp_transport="stdio",
-        log_level="DEBUG",
+        JENKINS_URL="http://localhost:8080",
+        JENKINS_USER="test_user",
+        JENKINS_API_TOKEN="test_token",
+        MCP_TRANSPORT="stdio",
+        LOG_LEVEL="DEBUG",
     )
 
 
