@@ -336,7 +336,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
             if not build_tool:
                 # Try each analyzer
                 for analyzer_class in [MavenAnalyzer, GradleAnalyzer, NpmAnalyzer]:
-                    analyzer = analyzer_class()
+                    analyzer = analyzer_class()  # type: ignore[abstract]
                     if analyzer.detect(log_content):
                         build_tool = analyzer.tool_name
                         break

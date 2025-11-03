@@ -3,6 +3,7 @@
 import logging
 import time
 from dataclasses import dataclass, field
+from typing import Any
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -151,7 +152,7 @@ class RateLimiter:
 
         self.last_cleanup = now
 
-    def get_stats(self) -> dict[str, any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get rate limiter statistics.
 
         Returns:
@@ -211,6 +212,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         allowed, retry_after = self.rate_limiter.check_rate_limit(identifier)
 
         if not allowed:
+            retry_seconds = retry_after or 0.0
             return JSONResponse(
                 status_code=429,
                 content={
@@ -219,7 +221,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                         "code": -32000,  # Server error
                         "message": "Rate limit exceeded",
                         "data": {
-                            "retry_after": round(retry_after, 2),
+                            "retry_after": round(retry_seconds, 2),
                             "limit": self.rate_limiter.requests_per_minute,
                             "identifier": identifier,
                         },
@@ -227,7 +229,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                     "id": None,
                 },
                 headers={
-                    "Retry-After": str(int(retry_after) + 1),
+                    "Retry-After": str(int(retry_seconds) + 1),
                     "X-RateLimit-Limit": str(self.rate_limiter.requests_per_minute),
                     "X-RateLimit-Remaining": "0",
                 },

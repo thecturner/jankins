@@ -2,6 +2,7 @@
 
 import asyncio
 import sys
+from typing import Literal, cast
 
 import click
 import uvicorn
@@ -139,11 +140,11 @@ def main(
             jenkins_url=jenkins_url,
             jenkins_user=jenkins_user,
             jenkins_api_token=jenkins_token,
-            mcp_transport=transport,
+            mcp_transport=cast(Literal["http", "sse", "stdio"], transport),
             mcp_bind=bind,
             origin_enforce=origin_enforce,
             origin_expected=origin_expected,
-            log_level=log_level,
+            log_level=cast(Literal["DEBUG", "INFO", "WARNING", "ERROR"], log_level),
             log_json=log_json,
             debug_http=debug_http,
             log_max_lines_default=log_max_lines,

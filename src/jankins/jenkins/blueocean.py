@@ -124,7 +124,7 @@ class BlueOceanClient:
 
         # Build graph structure
         stages = []
-        parallel_groups = {}
+        parallel_groups: dict[Any, list[dict[str, Any]]] = {}
         total_duration = 0
 
         for node in nodes:

@@ -97,7 +97,7 @@ async def handle_mcp_request(request: Request) -> Response:
         )
 
 
-async def handle_sse(request: Request) -> EventSourceResponse:
+async def handle_sse(request: Request) -> Response:
     """Handle MCP SSE request.
 
     Provides Server-Sent Events endpoint for long-lived connections.

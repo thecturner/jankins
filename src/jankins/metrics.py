@@ -271,7 +271,7 @@ class MetricsCollector:
 
 
 # Global metrics collector instance
-_metrics_collector: MetricsCollector = None
+_metrics_collector: MetricsCollector | None = None
 
 
 def get_metrics_collector() -> MetricsCollector:

@@ -30,7 +30,8 @@ async def run_stdio_server(mcp_server: MCPServer) -> None:
     )
 
     # Ensure stdout is line-buffered for immediate response delivery
-    sys.stdout.reconfigure(line_buffering=True)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)  # type: ignore[union-attr]
 
     try:
         # Read from stdin line by line

@@ -92,6 +92,7 @@ def setup_logging(level: str = "INFO", use_json: bool = False) -> None:
     handler.setLevel(level)
 
     # Set formatter
+    formatter: logging.Formatter
     if use_json:
         formatter = StructuredFormatter()
     else:

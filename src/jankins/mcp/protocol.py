@@ -7,7 +7,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 
 from ..errors import InvalidParamsError, JankinsError
 
@@ -50,11 +50,15 @@ class Tool:
 
     def to_schema(self) -> dict[str, Any]:
         """Convert tool to MCP schema format."""
+        input_schema: dict[str, Any] = {"type": "object", "properties": {}, "required": []}
         schema = {
             "name": self.name,
             "description": self.description,
-            "inputSchema": {"type": "object", "properties": {}, "required": []},
+            "inputSchema": input_schema,
         }
+
+        properties = cast(dict[str, Any], input_schema["properties"])
+        required = cast(list[str], input_schema["required"])
 
         for param in self.parameters:
             param_schema: dict[str, Any] = {
@@ -68,10 +72,10 @@ class Tool:
             if param.default is not None:
                 param_schema["default"] = param.default
 
-            schema["inputSchema"]["properties"][param.name] = param_schema
+            properties[param.name] = param_schema
 
             if param.required:
-                schema["inputSchema"]["required"].append(param.name)
+                required.append(param.name)
 
         return schema
 
@@ -87,7 +91,7 @@ class Prompt:
 
     def to_schema(self) -> dict[str, Any]:
         """Convert prompt to MCP schema format."""
-        schema = {
+        schema: dict[str, Any] = {
             "name": self.name,
             "description": self.description,
         }

@@ -8,10 +8,12 @@ import json
 from typing import Any
 
 import tiktoken
+from tiktoken import Encoding
 
 from .base import OutputFormat, format_duration, format_timestamp
 
 # Token estimator (using cl100k_base which is close to Claude's tokenizer)
+TOKENIZER: Encoding | None
 try:
     TOKENIZER = tiktoken.get_encoding("cl100k_base")
 except Exception:

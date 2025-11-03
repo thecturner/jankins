@@ -5,7 +5,7 @@ Parses test reports from Jenkins builds to provide detailed test analysis.
 
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -334,5 +334,5 @@ class TestResultParser:
                 )
 
         # Sort by failure rate descending
-        flaky.sort(key=lambda x: x["failure_rate"], reverse=True)
+        flaky.sort(key=lambda x: cast(float, x["failure_rate"]), reverse=True)
         return flaky
