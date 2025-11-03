@@ -20,6 +20,7 @@ class JankinsConfig(BaseSettings):
         env_prefix="",
         case_sensitive=False,
         env_file=None,  # Explicitly disable .env loading
+        extra="ignore",  # Ignore extra environment variables
     )
 
     # Jenkins connection

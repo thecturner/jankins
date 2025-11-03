@@ -2,7 +2,7 @@
 
 **Token-optimized Jenkins MCP server with smart log handling and failure triage**
 
-jankins provides MCP-compliant access to Jenkins with efficient, developer-friendly features:
+jankins provides MCP-compliant access to Jenkins with features designed for AI coding assistants:
 
 - 🎯 **Token-aware formatting**: Summary/full/diff output modes minimize context usage
 - 📊 **Smart log truncation**: Progressive retrieval with byte offsets, regex filtering, and ANSI cleanup
@@ -165,9 +165,9 @@ jankins includes pre-built prompts for common workflows:
 
 ## Client Examples
 
-### MCP Client Configuration
+### Claude Desktop
 
-Add to your MCP client settings:
+Add to your MCP settings:
 
 ```json
 {
@@ -184,9 +184,9 @@ Add to your MCP client settings:
 }
 ```
 
-### HTTP MCP Clients
+### GitHub Copilot / Cursor / Windsurf
 
-For HTTP-based MCP clients, configure as:
+Configure as an HTTP MCP server:
 
 ```json
 {
@@ -325,11 +325,13 @@ Example response structure:
 
 ## Security
 
-- **No .env files**: Configuration is explicit via env vars or CLI
+- **Explicit configuration**: Uses env vars or CLI flags (ignores .env files in working directory)
 - **Basic auth**: Uses Jenkins API tokens (never passwords)
 - **Optional Origin validation**: Enforce allowed origins
 - **No secret logging**: Credentials are redacted in logs
 - **Secret masking**: Jenkins secret masks are preserved/redacted
+
+**Note**: jankins ignores any .env files in your working directory and only reads the specific environment variables it needs (JENKINS_*, MCP_*, etc.). This prevents conflicts with project .env files.
 
 Generate API tokens:
 ```
