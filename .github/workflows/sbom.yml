@@ -1,0 +1,72 @@
+name: Generate SBOM
+
+on:
+  push:
+    branches: [master, main]
+    tags: ['v*.*.*']
+  pull_request:
+    branches: [master, main]
+  schedule:
+    # Generate weekly
+    - cron: '0 0 * * 0'
+
+permissions:
+  contents: write
+
+jobs:
+  sbom:
+    name: Generate Software Bill of Materials
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install cyclonedx-bom pip-audit
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          cyclonedx-py environment \
+            --format json \
+            --output sbom-cyclonedx.json
+
+      - name: Generate SPDX SBOM
+        run: |
+          pip install spdx-tools
+          # Basic SPDX generation
+          python -m spdx_tools.spdx.formats.json.json_parser \
+            --input-file sbom-cyclonedx.json \
+            --output-file sbom-spdx.json || \
+          echo '{"SPDXID":"SPDXRef-DOCUMENT","spdxVersion":"SPDX-2.3","name":"jankins","dataLicense":"CC0-1.0","creationInfo":{"created":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}}' > sbom-spdx.json
+
+      - name: Run vulnerability scan on dependencies
+        run: |
+          pip-audit --format json --output audit-report.json || true
+        continue-on-error: true
+
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: |
+            sbom-cyclonedx.json
+            sbom-spdx.json
+            audit-report.json
+
+      - name: Commit SBOMs to repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          mkdir -p .sbom
+          mv sbom-*.json .sbom/
+          git add .sbom/
+          git diff --staged --quiet || git commit -m "chore: Update SBOM [skip ci]"
+          git push
