@@ -3,22 +3,22 @@
 import pytest
 
 from jankins.jenkins.testresults import (
-    TestReport,
-    TestResultParser,
-    TestSuite,
+    TestReport as TestReportModel,
+    TestResultParserImpl as TestResultParserImplImpl,
+    TestSuiteModel as TestSuiteModelModel,
 )
 
 
 @pytest.mark.unit
-class TestTestResultParser:
+class TestTestResultParserImpl:
     """Test test result parser functionality."""
 
     def test_parse_test_report(self, sample_test_report):
         """Test parsing test report."""
-        parser = TestResultParser()
+        parser = TestResultParserImplImpl()
         report = parser.parse_test_report(sample_test_report)
 
-        assert isinstance(report, TestReport)
+        assert isinstance(report, TestReportModel)
         assert report.total_tests == 100
         assert report.passed == 98
         assert report.failed == 2
@@ -26,17 +26,17 @@ class TestTestResultParser:
 
     def test_parse_test_suites(self, sample_test_report):
         """Test parsing test suites."""
-        parser = TestResultParser()
+        parser = TestResultParserImpl()
         report = parser.parse_test_report(sample_test_report)
 
         assert len(report.suites) == 1
         suite = report.suites[0]
-        assert isinstance(suite, TestSuite)
-        assert suite.name == "TestSuite1"
+        assert isinstance(suite, TestSuiteModel)
+        assert suite.name == "TestSuiteModel1"
 
     def test_parse_test_cases(self, sample_test_report):
         """Test parsing test cases."""
-        parser = TestResultParser()
+        parser = TestResultParserImpl()
         report = parser.parse_test_report(sample_test_report)
 
         suite = report.suites[0]
@@ -56,14 +56,14 @@ class TestTestResultParser:
 
     def test_pass_rate_calculation(self, sample_test_report):
         """Test pass rate calculation."""
-        parser = TestResultParser()
+        parser = TestResultParserImpl()
         report = parser.parse_test_report(sample_test_report)
 
         assert report.pass_rate == 98.0
 
     def test_empty_test_report(self):
         """Test parsing empty test report."""
-        parser = TestResultParser()
+        parser = TestResultParserImpl()
         empty_report = {
             "duration": 0,
             "failCount": 0,
@@ -78,7 +78,7 @@ class TestTestResultParser:
 
     def test_get_failed_tests(self, sample_test_report):
         """Test extracting failed tests."""
-        parser = TestResultParser()
+        parser = TestResultParserImpl()
         report = parser.parse_test_report(sample_test_report)
 
         failed_tests = [
@@ -90,7 +90,7 @@ class TestTestResultParser:
 
     def test_compare_test_reports(self, sample_test_report):
         """Test comparing two test reports."""
-        parser = TestResultParser()
+        parser = TestResultParserImpl()
 
         # Create two reports
         report1 = parser.parse_test_report(sample_test_report)
@@ -109,7 +109,7 @@ class TestTestResultParser:
         """Test detecting flaky tests across builds."""
         # This would test the detect_flaky_tests logic
         # For now, basic structure test - placeholder for future implementation
-        # parser = TestResultParser()
+        # parser = TestResultParserImpl()
 
         # builds_data = [
         #     {"name": "test_foo", "status": "PASSED"},

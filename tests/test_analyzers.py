@@ -4,7 +4,7 @@ import pytest
 
 from jankins.analyzers.gradle import GradleAnalyzer
 from jankins.analyzers.maven import MavenAnalyzer
-from jankins.analyzers.npm import NPMAnalyzer
+from jankins.analyzers.npm import NpmAnalyzer
 
 
 @pytest.mark.unit
@@ -99,17 +99,17 @@ class TestGradleAnalyzer:
 
 
 @pytest.mark.unit
-class TestNPMAnalyzer:
+class TestNpmAnalyzer:
     """Test NPM log analyzer."""
 
     def test_detect_npm_log(self, sample_npm_log):
         """Test NPM log detection."""
-        analyzer = NPMAnalyzer()
+        analyzer = NpmAnalyzer()
         assert analyzer.can_analyze(sample_npm_log) is True
 
     def test_analyze_npm_log(self, sample_npm_log):
         """Test NPM log analysis."""
-        analyzer = NPMAnalyzer()
+        analyzer = NpmAnalyzer()
         result = analyzer.analyze(sample_npm_log)
 
         assert result.tool_name == "npm"
@@ -123,7 +123,7 @@ class TestNPMAnalyzer:
         npm ERR! code MODULE_NOT_FOUND
         npm ERR! Cannot find module 'missing-package'
         """
-        analyzer = NPMAnalyzer()
+        analyzer = NpmAnalyzer()
         result = analyzer.analyze(log)
 
         assert result.build_failed is True
@@ -135,7 +135,7 @@ class TestNPMAnalyzer:
         log = """
         FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory
         """
-        analyzer = NPMAnalyzer()
+        analyzer = NpmAnalyzer()
         result = analyzer.analyze(log)
 
         assert result.build_failed is True
@@ -147,7 +147,7 @@ class TestNPMAnalyzer:
         yarn run v1.22.0
         error Command failed with exit code 1.
         """
-        analyzer = NPMAnalyzer()
+        analyzer = NpmAnalyzer()
         assert analyzer.can_analyze(log) is True
 
         result = analyzer.analyze(log)
