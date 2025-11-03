@@ -4,7 +4,11 @@ import pytest
 
 from jankins.jenkins.testresults import (
     TestReport as _TestReport,
+)
+from jankins.jenkins.testresults import (
     TestResultParser as _TestResultParser,
+)
+from jankins.jenkins.testresults import (
     TestSuite as _TestSuite,
 )
 

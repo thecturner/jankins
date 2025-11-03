@@ -164,7 +164,7 @@ def sample_blueocean_nodes() -> list:
 @pytest.fixture
 def response_cache():
     """Create response cache instance."""
-    return ResponseCache(ttl_seconds=60, max_size=100)
+    return ResponseCache(ttl=60, max_entries=100)
 
 
 @pytest.fixture

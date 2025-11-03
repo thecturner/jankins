@@ -14,7 +14,7 @@ class TestMavenAnalyzer:
     def test_detect_maven_log(self, sample_maven_log):
         """Test Maven log detection."""
         analyzer = MavenAnalyzer()
-        assert analyzer.can_analyze(sample_maven_log) is True
+        assert analyzer.detect(sample_maven_log) is True
 
     def test_analyze_maven_log(self, sample_maven_log):
         """Test Maven log analysis."""
@@ -59,7 +59,7 @@ class TestGradleAnalyzer:
     def test_detect_gradle_log(self, sample_gradle_log):
         """Test Gradle log detection."""
         analyzer = GradleAnalyzer()
-        assert analyzer.can_analyze(sample_gradle_log) is True
+        assert analyzer.detect(sample_gradle_log) is True
 
     def test_analyze_gradle_log(self, sample_gradle_log):
         """Test Gradle log analysis."""
@@ -105,7 +105,7 @@ class TestNpmAnalyzer:
     def test_detect_npm_log(self, sample_npm_log):
         """Test NPM log detection."""
         analyzer = NpmAnalyzer()
-        assert analyzer.can_analyze(sample_npm_log) is True
+        assert analyzer.detect(sample_npm_log) is True
 
     def test_analyze_npm_log(self, sample_npm_log):
         """Test NPM log analysis."""
@@ -148,7 +148,7 @@ class TestNpmAnalyzer:
         error Command failed with exit code 1.
         """
         analyzer = NpmAnalyzer()
-        assert analyzer.can_analyze(log) is True
+        assert analyzer.detect(log) is True
 
         result = analyzer.analyze(log)
         assert result.build_failed is True
