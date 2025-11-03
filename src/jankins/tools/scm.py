@@ -33,31 +33,35 @@ def register_scm_tools(mcp_server, jenkins_adapter, config):
                 result = {
                     "job_name": job_name,
                     "scm_class": scm.get("_class", "unknown"),
-                    "url": scm.get("userRemoteConfigs", [{}])[0].get("url") if scm.get("userRemoteConfigs") else None,
-                    "branches": [
-                        b.get("name") for b in scm.get("branches", [])
-                    ]
+                    "url": scm.get("userRemoteConfigs", [{}])[0].get("url")
+                    if scm.get("userRemoteConfigs")
+                    else None,
+                    "branches": [b.get("name") for b in scm.get("branches", [])],
                 }
             else:  # FULL
-                result = {
-                    "job_name": job_name,
-                    "scm": scm
-                }
+                result = {"job_name": job_name, "scm": scm}
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_job_scm",
-        description="Get SCM configuration for a job",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=get_job_scm_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_job_scm",
+            description="Get SCM configuration for a job",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=get_job_scm_handler,
+        )
+    )
 
     # get_build_scm
     async def get_build_scm_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -82,29 +86,34 @@ def register_scm_tools(mcp_server, jenkins_adapter, config):
 
             # Extract SCM actions
             scm_actions = [
-                action for action in build_info.get("actions", [])
-                if action.get("_class", "").endswith("GitSCM") or
-                   action.get("_class", "").endswith("SubversionSCM") or
-                   "lastBuiltRevision" in action
+                action
+                for action in build_info.get("actions", [])
+                if action.get("_class", "").endswith("GitSCM")
+                or action.get("_class", "").endswith("SubversionSCM")
+                or "lastBuiltRevision" in action
             ]
 
-            result = {
-                "build_number": build_number,
-                "job_name": job_name,
-                "scm_info": scm_actions
-            }
+            result = {"build_number": build_number, "job_name": job_name, "scm_info": scm_actions}
 
             took_ms = int((time.time() - start_time) * 1000)
             return TokenAwareFormatter.add_metadata(
                 result, correlation_id, took_ms, OutputFormat.SUMMARY
             )
 
-    mcp_server.register_tool(Tool(
-        name="get_build_scm",
-        description="Get SCM information (git commit, branch, etc.) for a build",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-        ],
-        handler=get_build_scm_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_build_scm",
+            description="Get SCM information (git commit, branch, etc.) for a build",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+            ],
+            handler=get_build_scm_handler,
+        )
+    )

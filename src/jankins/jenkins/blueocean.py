@@ -32,9 +32,7 @@ class BlueOceanClient:
         self.adapter = jenkins_adapter
         self.base_path = "/blue/rest/organizations/jenkins"
 
-    def get_pipeline_run(
-        self, job_name: str, build_number: int
-    ) -> dict[str, Any]:
+    def get_pipeline_run(self, job_name: str, build_number: int) -> dict[str, Any]:
         """Get Blue Ocean pipeline run data.
 
         Args:
@@ -55,12 +53,10 @@ class BlueOceanClient:
             logger.warning(f"Blue Ocean API not available for {job_name} #{build_number}: {e}")
             raise NotFoundError(
                 f"Blue Ocean data not found for {job_name} #{build_number}",
-                resource_type="Pipeline Run"
+                resource_type="Pipeline Run",
             )
 
-    def get_pipeline_nodes(
-        self, job_name: str, build_number: int
-    ) -> list[dict[str, Any]]:
+    def get_pipeline_nodes(self, job_name: str, build_number: int) -> list[dict[str, Any]]:
         """Get pipeline execution nodes (stages and steps).
 
         Args:
@@ -94,7 +90,9 @@ class BlueOceanClient:
             List of steps with timing and status
         """
         encoded_name = self._encode_job_name(job_name)
-        path = f"{self.base_path}/pipelines/{encoded_name}/runs/{build_number}/nodes/{node_id}/steps"
+        path = (
+            f"{self.base_path}/pipelines/{encoded_name}/runs/{build_number}/nodes/{node_id}/steps"
+        )
 
         try:
             response = self.adapter.rest_get(path)
@@ -103,9 +101,7 @@ class BlueOceanClient:
             logger.warning(f"Blue Ocean steps not available: {e}")
             return []
 
-    def get_pipeline_graph(
-        self, job_name: str, build_number: int
-    ) -> dict[str, Any]:
+    def get_pipeline_graph(self, job_name: str, build_number: int) -> dict[str, Any]:
         """Get complete pipeline graph with stages and parallel execution.
 
         This provides the full execution graph including:
@@ -124,11 +120,7 @@ class BlueOceanClient:
         nodes = self.get_pipeline_nodes(job_name, build_number)
 
         if not nodes:
-            return {
-                "stages": [],
-                "parallel_stages": [],
-                "total_duration_ms": 0
-            }
+            return {"stages": [], "parallel_stages": [], "total_duration_ms": 0}
 
         # Build graph structure
         stages = []
@@ -163,12 +155,10 @@ class BlueOceanClient:
             "stages": stages,
             "parallel_stages": list(parallel_groups.values()),
             "total_duration_ms": total_duration,
-            "node_count": len(nodes)
+            "node_count": len(nodes),
         }
 
-    def get_failing_stages_detailed(
-        self, job_name: str, build_number: int
-    ) -> list[dict[str, Any]]:
+    def get_failing_stages_detailed(self, job_name: str, build_number: int) -> list[dict[str, Any]]:
         """Get detailed information about failing stages.
 
         Args:
@@ -193,10 +183,7 @@ class BlueOceanClient:
 
                 # Get steps for this node to find error details
                 steps = self.get_node_steps(job_name, build_number, node.get("id", ""))
-                failing_steps = [
-                    s for s in steps
-                    if s.get("result") in ("FAILURE", "ABORTED")
-                ]
+                failing_steps = [s for s in steps if s.get("result") in ("FAILURE", "ABORTED")]
 
                 if failing_steps:
                     failing_stage["failing_steps"] = [
@@ -234,7 +221,7 @@ class BlueOceanClient:
                 "duration_delta_ms": 0,
                 "new_stages": [],
                 "removed_stages": [],
-                "available": False
+                "available": False,
             }
 
         # Build stage map by name
@@ -250,14 +237,16 @@ class BlueOceanClient:
 
                 # Only include significant differences (>10% or >1sec)
                 if abs(delta) > 1000 or (base_duration > 0 and abs(delta / base_duration) > 0.1):
-                    stage_diffs.append({
-                        "stage": stage_name,
-                        "base_duration_ms": base_duration,
-                        "head_duration_ms": head_duration,
-                        "delta_ms": delta,
-                        "base_result": base_stages[stage_name].get("result", ""),
-                        "head_result": head_stages[stage_name].get("result", ""),
-                    })
+                    stage_diffs.append(
+                        {
+                            "stage": stage_name,
+                            "base_duration_ms": base_duration,
+                            "head_duration_ms": head_duration,
+                            "delta_ms": delta,
+                            "base_result": base_stages[stage_name].get("result", ""),
+                            "head_result": head_stages[stage_name].get("result", ""),
+                        }
+                    )
 
         # Find new and removed stages
         new_stages = [s for s in head_stages.keys() if s not in base_stages]
@@ -270,7 +259,7 @@ class BlueOceanClient:
             "duration_delta_ms": duration_delta,
             "new_stages": new_stages,
             "removed_stages": removed_stages,
-            "available": True
+            "available": True,
         }
 
     def _encode_job_name(self, job_name: str) -> str:

@@ -16,83 +16,83 @@ from .server import JankinsServer
     "--jenkins-url",
     envvar="JENKINS_URL",
     required=True,
-    help="Jenkins server URL (env: JENKINS_URL)"
+    help="Jenkins server URL (env: JENKINS_URL)",
 )
 @click.option(
     "--jenkins-user",
     envvar="JENKINS_USER",
     required=True,
-    help="Jenkins username (env: JENKINS_USER)"
+    help="Jenkins username (env: JENKINS_USER)",
 )
 @click.option(
     "--jenkins-token",
     envvar="JENKINS_API_TOKEN",
     required=True,
-    help="Jenkins API token (env: JENKINS_API_TOKEN)"
+    help="Jenkins API token (env: JENKINS_API_TOKEN)",
 )
 @click.option(
     "--transport",
     envvar="MCP_TRANSPORT",
     type=click.Choice(["http", "sse", "stdio"]),
     default="stdio",
-    help="MCP transport type (env: MCP_TRANSPORT)"
+    help="MCP transport type (env: MCP_TRANSPORT)",
 )
 @click.option(
     "--bind",
     envvar="MCP_BIND",
     default="127.0.0.1:8080",
-    help="Server bind address (env: MCP_BIND)"
+    help="Server bind address (env: MCP_BIND)",
 )
 @click.option(
     "--origin-enforce/--no-origin-enforce",
     envvar="ORIGIN_ENFORCE",
     default=False,
-    help="Enforce Origin header validation (env: ORIGIN_ENFORCE)"
+    help="Enforce Origin header validation (env: ORIGIN_ENFORCE)",
 )
 @click.option(
     "--origin-expected",
     envvar="ORIGIN_EXPECTED",
-    help="Expected Origin header value (env: ORIGIN_EXPECTED)"
+    help="Expected Origin header value (env: ORIGIN_EXPECTED)",
 )
 @click.option(
     "--log-level",
     envvar="LOG_LEVEL",
     type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]),
     default="INFO",
-    help="Logging level (env: LOG_LEVEL)"
+    help="Logging level (env: LOG_LEVEL)",
 )
 @click.option(
     "--log-json/--no-log-json",
     envvar="LOG_JSON",
     default=False,
-    help="Use JSON structured logging (env: LOG_JSON)"
+    help="Use JSON structured logging (env: LOG_JSON)",
 )
 @click.option(
     "--debug-http/--no-debug-http",
     envvar="DEBUG_HTTP",
     default=False,
-    help="Log Jenkins HTTP requests (env: DEBUG_HTTP)"
+    help="Log Jenkins HTTP requests (env: DEBUG_HTTP)",
 )
 @click.option(
     "--log-max-lines",
     envvar="LOG_MAX_LINES_DEFAULT",
     type=int,
     default=2000,
-    help="Default max log lines (env: LOG_MAX_LINES_DEFAULT)"
+    help="Default max log lines (env: LOG_MAX_LINES_DEFAULT)",
 )
 @click.option(
     "--log-max-bytes",
     envvar="LOG_MAX_BYTES_DEFAULT",
     type=int,
     default=262144,
-    help="Default max log bytes (env: LOG_MAX_BYTES_DEFAULT)"
+    help="Default max log bytes (env: LOG_MAX_BYTES_DEFAULT)",
 )
 @click.option(
     "--timeout",
     envvar="JENKINS_TIMEOUT",
     type=int,
     default=30,
-    help="Jenkins API timeout in seconds (env: JENKINS_TIMEOUT)"
+    help="Jenkins API timeout in seconds (env: JENKINS_TIMEOUT)",
 )
 def main(
     jenkins_url: str,

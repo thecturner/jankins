@@ -58,7 +58,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                     "hypotheses": [],
                     "top_errors": [],
                     "failing_stages": [],
-                    "next_steps": []
+                    "next_steps": [],
                 }
             else:
                 # Generate hypotheses based on error patterns
@@ -70,16 +70,14 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                     {
                         "commit": c.get("commitId", "")[:8],
                         "author": c.get("author", {}).get("fullName", "Unknown"),
-                        "message": c.get("msg", "")[:100]
+                        "message": c.get("msg", "")[:100],
                     }
                     for c in changes[:5]
                 ]
 
                 # Generate next steps
                 next_steps = _generate_next_steps(
-                    log_summary.failing_stages,
-                    log_summary.last_error_lines,
-                    len(changes) > 0
+                    log_summary.failing_stages, log_summary.last_error_lines, len(changes) > 0
                 )
 
                 result_data = {
@@ -89,7 +87,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                     "top_errors": log_summary.last_error_lines,
                     "failing_stages": log_summary.failing_stages,
                     "suspect_changes": suspect_changes,
-                    "next_steps": next_steps
+                    "next_steps": next_steps,
                 }
 
                 # Format using TokenAwareFormatter
@@ -99,7 +97,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                     failing_stages=log_summary.failing_stages,
                     suspect_changes=suspect_changes,
                     next_steps=next_steps,
-                    format=output_format
+                    format=output_format,
                 )
                 result_data["build_number"] = build_number
                 result_data["job_name"] = job_name
@@ -109,17 +107,37 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                 result_data, correlation_id, took_ms, output_format
             )
 
-    mcp_server.register_tool(Tool(
-        name="triage_failure",
-        description="Analyze a failed build and provide root cause hypotheses and next steps",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("max_bytes", ToolParameterType.NUMBER, "Maximum log bytes to analyze", required=False),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=triage_failure_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="triage_failure",
+            description="Analyze a failed build and provide root cause hypotheses and next steps",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "max_bytes",
+                    ToolParameterType.NUMBER,
+                    "Maximum log bytes to analyze",
+                    required=False,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=triage_failure_handler,
+        )
+    )
 
     # compare_runs
     async def compare_runs_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -145,9 +163,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
 
             # Stage comparison with Blue Ocean API
             try:
-                comparison = blue_ocean_client.compare_pipeline_runs(
-                    job_name, int(base), int(head)
-                )
+                comparison = blue_ocean_client.compare_pipeline_runs(job_name, int(base), int(head))
                 stage_diffs = comparison.get("stage_diffs", [])
             except Exception as e:
                 logger.debug(f"Blue Ocean comparison not available: {e}")
@@ -159,27 +175,36 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                 head_build=head_build,
                 duration_delta=duration_delta,
                 stage_diffs=stage_diffs,
-                format=output_format
+                format=output_format,
             )
 
             result["job_name"] = job_name
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="compare_runs",
-        description="Compare two builds to identify differences in duration, stages, and results",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("base", ToolParameterType.STRING, "Base build number", required=True),
-            ToolParameter("head", ToolParameterType.STRING, "Head build number to compare", required=True),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="diff", enum=["summary", "full", "diff"]),
-        ],
-        handler=compare_runs_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="compare_runs",
+            description="Compare two builds to identify differences in duration, stages, and results",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter("base", ToolParameterType.STRING, "Base build number", required=True),
+                ToolParameter(
+                    "head", ToolParameterType.STRING, "Head build number to compare", required=True
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="diff",
+                    enum=["summary", "full", "diff"],
+                ),
+            ],
+            handler=compare_runs_handler,
+        )
+    )
 
     # get_pipeline_graph
     async def get_pipeline_graph_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -222,11 +247,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                 # In summary mode, simplify the output
                 if output_format == OutputFormat.SUMMARY:
                     result["stages"] = [
-                        {
-                            "name": s["name"],
-                            "result": s["result"],
-                            "duration_ms": s["duration_ms"]
-                        }
+                        {"name": s["name"], "result": s["result"], "duration_ms": s["duration_ms"]}
                         for s in result["stages"]
                     ]
                     if result["parallel_stages"]:
@@ -242,24 +263,37 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                     "job_name": job_name,
                     "error": "Blue Ocean API not available for this build",
                     "stages": [],
-                    "available": False
+                    "available": False,
                 }
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_pipeline_graph",
-        description="Get pipeline execution graph with stages, parallel branches, and timing (requires Blue Ocean plugin)",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=get_pipeline_graph_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_pipeline_graph",
+            description="Get pipeline execution graph with stages, parallel branches, and timing (requires Blue Ocean plugin)",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=get_pipeline_graph_handler,
+        )
+    )
 
     # analyze_build_log
     async def analyze_build_log_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -335,36 +369,55 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                         result["warning_count"] = len(analysis.warnings)
 
                 except ValueError as e:
-                    result = {
-                        "build_number": build_number,
-                        "job_name": job_name,
-                        "error": str(e)
-                    }
+                    result = {"build_number": build_number, "job_name": job_name, "error": str(e)}
             else:
                 result = {
                     "build_number": build_number,
                     "job_name": job_name,
                     "error": "Could not detect build tool (maven, gradle, npm)",
-                    "hint": "Specify build_tool parameter explicitly"
+                    "hint": "Specify build_tool parameter explicitly",
                 }
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="analyze_build_log",
-        description="Analyze build logs with build tool-specific parsers (Maven, Gradle, NPM) for detailed error analysis",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("build_tool", ToolParameterType.STRING, "Build tool (maven, gradle, npm) or auto-detect", required=False),
-            ToolParameter("max_bytes", ToolParameterType.NUMBER, "Maximum log bytes to analyze", required=False),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=analyze_build_log_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="analyze_build_log",
+            description="Analyze build logs with build tool-specific parsers (Maven, Gradle, NPM) for detailed error analysis",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "build_tool",
+                    ToolParameterType.STRING,
+                    "Build tool (maven, gradle, npm) or auto-detect",
+                    required=False,
+                ),
+                ToolParameter(
+                    "max_bytes",
+                    ToolParameterType.NUMBER,
+                    "Maximum log bytes to analyze",
+                    required=False,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=analyze_build_log_handler,
+        )
+    )
 
     # retry_flaky_build
     async def retry_flaky_build_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -391,6 +444,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
 
                     # Wait a bit for build to start
                     import asyncio
+
                     await asyncio.sleep(delay_seconds)
 
                     # Get latest build info
@@ -402,12 +456,14 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                         build_info = jenkins_adapter.get_build_info(job_name, build_number)
                         result_status = build_info.get("result", "UNKNOWN")
 
-                        retries.append({
-                            "attempt": attempt,
-                            "build_number": build_number,
-                            "result": result_status,
-                            "queue_id": queue_id
-                        })
+                        retries.append(
+                            {
+                                "attempt": attempt,
+                                "build_number": build_number,
+                                "result": result_status,
+                                "queue_id": queue_id,
+                            }
+                        )
 
                         if result_status == "SUCCESS":
                             success = True
@@ -415,10 +471,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
 
                 except Exception as e:
                     logger.error(f"Retry attempt {attempt} failed: {e}")
-                    retries.append({
-                        "attempt": attempt,
-                        "error": str(e)
-                    })
+                    retries.append({"attempt": attempt, "error": str(e)})
 
                 # Wait before next retry
                 if attempt < max_retries:
@@ -429,7 +482,7 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                 "success": success,
                 "attempts": len(retries),
                 "max_retries": max_retries,
-                "retries": retries
+                "retries": retries,
             }
 
             if success:
@@ -438,22 +491,43 @@ def register_advanced_tools(mcp_server, jenkins_adapter, config):
                 result["message"] = f"Build failed after {len(retries)} attempt(s)"
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="retry_flaky_build",
-        description="Retry a flaky build multiple times until it succeeds or max retries reached",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("max_retries", ToolParameterType.NUMBER, "Maximum retry attempts", required=False, default=3),
-            ToolParameter("delay_seconds", ToolParameterType.NUMBER, "Delay between retries in seconds", required=False, default=5),
-            ToolParameter("parameters", ToolParameterType.OBJECT, "Build parameters", required=False),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=retry_flaky_build_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="retry_flaky_build",
+            description="Retry a flaky build multiple times until it succeeds or max retries reached",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "max_retries",
+                    ToolParameterType.NUMBER,
+                    "Maximum retry attempts",
+                    required=False,
+                    default=3,
+                ),
+                ToolParameter(
+                    "delay_seconds",
+                    ToolParameterType.NUMBER,
+                    "Delay between retries in seconds",
+                    required=False,
+                    default=5,
+                ),
+                ToolParameter(
+                    "parameters", ToolParameterType.OBJECT, "Build parameters", required=False
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=retry_flaky_build_handler,
+        )
+    )
 
 
 def _generate_hypotheses(error_lines: list[str]) -> list[str]:
@@ -495,9 +569,7 @@ def _generate_hypotheses(error_lines: list[str]) -> list[str]:
 
 
 def _generate_next_steps(
-    failing_stages: list[str],
-    error_lines: list[str],
-    has_changes: bool
+    failing_stages: list[str], error_lines: list[str], has_changes: bool
 ) -> list[str]:
     """Generate recommended next steps for failure investigation."""
     steps = []

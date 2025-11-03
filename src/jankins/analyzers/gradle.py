@@ -31,10 +31,7 @@ class GradleAnalyzer(LogAnalyzer):
         Returns:
             AnalysisResult with Gradle-specific information
         """
-        result = AnalysisResult(
-            build_tool="gradle",
-            detected=self.detect(log_content)
-        )
+        result = AnalysisResult(build_tool="gradle", detected=self.detect(log_content))
 
         if not result.detected:
             result.summary = "Gradle build not detected in log"
@@ -97,55 +94,64 @@ class GradleAnalyzer(LogAnalyzer):
 
         # Check for dependency resolution failures
         if "Could not resolve" in log_content or "Could not find" in log_content:
-            issues.append({
-                "type": "dependency_resolution",
-                "severity": "error",
-                "message": "Failed to resolve project dependencies"
-            })
+            issues.append(
+                {
+                    "type": "dependency_resolution",
+                    "severity": "error",
+                    "message": "Failed to resolve project dependencies",
+                }
+            )
 
         # Check for compilation failures
         if "Compilation failed" in log_content or "Compilation error" in log_content:
-            issues.append({
-                "type": "compilation",
-                "severity": "error",
-                "message": "Kotlin/Java compilation failed"
-            })
+            issues.append(
+                {
+                    "type": "compilation",
+                    "severity": "error",
+                    "message": "Kotlin/Java compilation failed",
+                }
+            )
 
         # Check for test failures
         if "tests completed" in log_content and "failed" in log_content:
-            issues.append({
-                "type": "test_failure",
-                "severity": "error",
-                "message": "Unit or integration tests failed"
-            })
+            issues.append(
+                {
+                    "type": "test_failure",
+                    "severity": "error",
+                    "message": "Unit or integration tests failed",
+                }
+            )
 
         # Check for task execution failures
-        task_failure = re.search(
-            r"Execution failed for task '([\w:]+)'",
-            log_content
-        )
+        task_failure = re.search(r"Execution failed for task '([\w:]+)'", log_content)
         if task_failure:
-            issues.append({
-                "type": "task_execution",
-                "severity": "error",
-                "message": f"Gradle task failed: {task_failure.group(1)}"
-            })
+            issues.append(
+                {
+                    "type": "task_execution",
+                    "severity": "error",
+                    "message": f"Gradle task failed: {task_failure.group(1)}",
+                }
+            )
 
         # Check for out of memory
         if "java.lang.OutOfMemoryError" in log_content:
-            issues.append({
-                "type": "out_of_memory",
-                "severity": "error",
-                "message": "Gradle build ran out of memory"
-            })
+            issues.append(
+                {
+                    "type": "out_of_memory",
+                    "severity": "error",
+                    "message": "Gradle build ran out of memory",
+                }
+            )
 
         # Check for daemon issues
         if "Gradle Daemon" in log_content and ("stopped" in log_content or "died" in log_content):
-            issues.append({
-                "type": "daemon_crash",
-                "severity": "warning",
-                "message": "Gradle daemon crashed during build"
-            })
+            issues.append(
+                {
+                    "type": "daemon_crash",
+                    "severity": "warning",
+                    "message": "Gradle daemon crashed during build",
+                }
+            )
 
         return issues
 
@@ -161,28 +167,16 @@ class GradleAnalyzer(LogAnalyzer):
         recommendations = []
 
         if result.dependencies_failed:
-            recommendations.append(
-                "Check dependency versions and repository configuration"
-            )
-            recommendations.append(
-                "Run './gradlew dependencies' to diagnose conflicts"
-            )
+            recommendations.append("Check dependency versions and repository configuration")
+            recommendations.append("Run './gradlew dependencies' to diagnose conflicts")
 
         if result.compilation_errors > 0:
-            recommendations.append(
-                "Fix compilation errors in source code"
-            )
-            recommendations.append(
-                "Ensure correct Java/Kotlin version is configured"
-            )
+            recommendations.append("Fix compilation errors in source code")
+            recommendations.append("Ensure correct Java/Kotlin version is configured")
 
         if result.test_failures > 0:
-            recommendations.append(
-                "Review failing test cases and fix issues"
-            )
-            recommendations.append(
-                "Run tests locally: ./gradlew test"
-            )
+            recommendations.append("Review failing test cases and fix issues")
+            recommendations.append("Run tests locally: ./gradlew test")
 
         for issue in result.issues:
             if issue["type"] == "out_of_memory":
@@ -217,9 +211,7 @@ class GradleAnalyzer(LogAnalyzer):
             parts.append(f"{result.test_failures} test failure(s)")
 
         if result.dependencies_failed:
-            parts.append(
-                f"{len(result.dependencies_failed)} dependency resolution failure(s)"
-            )
+            parts.append(f"{len(result.dependencies_failed)} dependency resolution failure(s)")
 
         if len(result.errors) > 0:
             parts.append(f"{len(result.errors)} error message(s)")

@@ -134,7 +134,7 @@ def sample_test_report() -> dict[str, Any]:
                         "errorDetails": "AssertionError: Expected 1, got 2",
                         "errorStackTrace": "Traceback...",
                     },
-                ]
+                ],
             }
         ],
     }

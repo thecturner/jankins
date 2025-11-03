@@ -28,7 +28,7 @@ class MetricsSummary:
     # Timing metrics (in milliseconds)
     total_duration_ms: float = 0.0
     avg_duration_ms: float = 0.0
-    min_duration_ms: float = float('inf')
+    min_duration_ms: float = float("inf")
     max_duration_ms: float = 0.0
 
     # Jenkins API metrics
@@ -73,11 +73,7 @@ class MetricsCollector:
         logger.info("Metrics collector initialized")
 
     def record_request(
-        self,
-        tool_name: str,
-        duration_ms: float,
-        success: bool,
-        error_type: str = None
+        self, tool_name: str, duration_ms: float, success: bool, error_type: str = None
     ) -> None:
         """Record a tool request.
 
@@ -102,12 +98,8 @@ class MetricsCollector:
 
             # Track duration
             self.summary.total_duration_ms += duration_ms
-            self.summary.min_duration_ms = min(
-                self.summary.min_duration_ms, duration_ms
-            )
-            self.summary.max_duration_ms = max(
-                self.summary.max_duration_ms, duration_ms
-            )
+            self.summary.min_duration_ms = min(self.summary.min_duration_ms, duration_ms)
+            self.summary.max_duration_ms = max(self.summary.max_duration_ms, duration_ms)
 
             # Keep last 1000 durations for percentile calculation
             self._durations.append(duration_ms)
@@ -171,31 +163,33 @@ class MetricsCollector:
                     "total": self.summary.total_requests,
                     "successful": self.summary.successful_requests,
                     "failed": self.summary.failed_requests,
-                    "success_rate": round(self.summary.success_rate, 2)
+                    "success_rate": round(self.summary.success_rate, 2),
                 },
                 "duration_ms": {
                     "avg": round(self.summary.avg_duration_ms, 2),
-                    "min": round(self.summary.min_duration_ms, 2) if self.summary.min_duration_ms != float('inf') else 0,
+                    "min": round(self.summary.min_duration_ms, 2)
+                    if self.summary.min_duration_ms != float("inf")
+                    else 0,
                     "max": round(self.summary.max_duration_ms, 2),
                     "p50": round(p50, 2),
                     "p95": round(p95, 2),
-                    "p99": round(p99, 2)
+                    "p99": round(p99, 2),
                 },
                 "tools": {
                     "top_calls": dict(self.summary.tool_calls.most_common(10)),
-                    "top_errors": dict(self.summary.tool_errors.most_common(10))
+                    "top_errors": dict(self.summary.tool_errors.most_common(10)),
                 },
                 "jenkins": {
                     "calls": self.summary.jenkins_calls,
                     "errors": self.summary.jenkins_errors,
                     "error_rate": round(
                         (self.summary.jenkins_errors / self.summary.jenkins_calls * 100)
-                        if self.summary.jenkins_calls > 0 else 0, 2
-                    )
+                        if self.summary.jenkins_calls > 0
+                        else 0,
+                        2,
+                    ),
                 },
-                "rate_limiting": {
-                    "hits": self.summary.rate_limit_hits
-                }
+                "rate_limiting": {"hits": self.summary.rate_limit_hits},
             }
 
     def export_prometheus(self) -> str:
@@ -232,23 +226,31 @@ class MetricsCollector:
             lines.append("# TYPE jankins_request_duration_ms summary")
             lines.append(f"jankins_request_duration_ms_sum {self.summary.total_duration_ms:.2f}")
             lines.append(f"jankins_request_duration_ms_count {self.summary.total_requests}")
-            lines.append(f"jankins_request_duration_ms{{quantile=\"0.5\"}} {self.get_percentile(50):.2f}")
-            lines.append(f"jankins_request_duration_ms{{quantile=\"0.95\"}} {self.get_percentile(95):.2f}")
-            lines.append(f"jankins_request_duration_ms{{quantile=\"0.99\"}} {self.get_percentile(99):.2f}")
+            lines.append(
+                f'jankins_request_duration_ms{{quantile="0.5"}} {self.get_percentile(50):.2f}'
+            )
+            lines.append(
+                f'jankins_request_duration_ms{{quantile="0.95"}} {self.get_percentile(95):.2f}'
+            )
+            lines.append(
+                f'jankins_request_duration_ms{{quantile="0.99"}} {self.get_percentile(99):.2f}'
+            )
 
             # Tool calls by name
             lines.append("# HELP jankins_tool_calls_total Tool calls by name")
             lines.append("# TYPE jankins_tool_calls_total counter")
             for tool_name, count in self.summary.tool_calls.items():
-                lines.append(f"jankins_tool_calls_total{{tool=\"{tool_name}\"}} {count}")
+                lines.append(f'jankins_tool_calls_total{{tool="{tool_name}"}} {count}')
 
             # Tool errors
             lines.append("# HELP jankins_tool_errors_total Tool errors by name and type")
             lines.append("# TYPE jankins_tool_errors_total counter")
             for error_key, count in self.summary.tool_errors.items():
-                tool, error_type = error_key.split(":", 1) if ":" in error_key else (error_key, "unknown")
+                tool, error_type = (
+                    error_key.split(":", 1) if ":" in error_key else (error_key, "unknown")
+                )
                 lines.append(
-                    f"jankins_tool_errors_total{{tool=\"{tool}\",error_type=\"{error_type}\"}} {count}"
+                    f'jankins_tool_errors_total{{tool="{tool}",error_type="{error_type}"}} {count}'
                 )
 
             # Jenkins API calls

@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LogChunk:
     """A chunk of log data with metadata."""
+
     text: str
     start: int
     end: int
@@ -25,6 +26,7 @@ class LogChunk:
 @dataclass
 class LogSummary:
     """Summary of log content for token-efficient responses."""
+
     total_bytes: int
     total_lines: int
     error_count: int
@@ -41,8 +43,8 @@ class ProgressiveLogClient:
     byte offsets and server-side filtering.
     """
 
-    ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-    SECRET_MASK = re.compile(r'\*{4,}')  # Jenkins masks secrets with ****
+    ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+    SECRET_MASK = re.compile(r"\*{4,}")  # Jenkins masks secrets with ****
 
     def __init__(self, adapter: JenkinsAdapter):
         self.adapter = adapter
@@ -96,25 +98,16 @@ class ProgressiveLogClient:
         Returns:
             LogChunk with text and metadata
         """
-        text, next_start, has_more = self.get_progressive_text(
-            job_name,
-            build_number,
-            start=start
-        )
+        text, next_start, has_more = self.get_progressive_text(job_name, build_number, start=start)
 
         # Truncate if exceeds max_bytes
-        if max_bytes and len(text.encode('utf-8')) > max_bytes:
+        if max_bytes and len(text.encode("utf-8")) > max_bytes:
             # Truncate to max_bytes, ensuring we don't split multi-byte characters
-            text_bytes = text.encode('utf-8')[:max_bytes]
-            text = text_bytes.decode('utf-8', errors='ignore')
+            text_bytes = text.encode("utf-8")[:max_bytes]
+            text = text_bytes.decode("utf-8", errors="ignore")
             has_more = True
 
-        return LogChunk(
-            text=text,
-            start=start,
-            end=next_start,
-            has_more=has_more
-        )
+        return LogChunk(text=text, start=start, end=next_start, has_more=has_more)
 
     def get_tail(
         self,
@@ -158,7 +151,7 @@ class ProgressiveLogClient:
         Returns:
             Filtered log text
         """
-        lines = text.split('\n')
+        lines = text.split("\n")
         filtered_lines = []
 
         for line in lines:
@@ -174,12 +167,12 @@ class ProgressiveLogClient:
 
             # Apply redaction
             if redact:
-                line = self.ANSI_ESCAPE.sub('', line)
-                line = self.SECRET_MASK.sub('[REDACTED]', line)
+                line = self.ANSI_ESCAPE.sub("", line)
+                line = self.SECRET_MASK.sub("[REDACTED]", line)
 
             filtered_lines.append(line)
 
-        return '\n'.join(filtered_lines)
+        return "\n".join(filtered_lines)
 
     def summarize_log(
         self,
@@ -199,14 +192,14 @@ class ProgressiveLogClient:
         """
         # Get tail of log for analysis
         chunk = self.get_tail(job_name, build_number, max_bytes)
-        lines = chunk.text.split('\n')
+        lines = chunk.text.split("\n")
 
         # Count errors and warnings
-        error_count = sum(1 for line in lines if 'ERROR' in line.upper())
-        warning_count = sum(1 for line in lines if 'WARN' in line.upper())
+        error_count = sum(1 for line in lines if "ERROR" in line.upper())
+        warning_count = sum(1 for line in lines if "WARN" in line.upper())
 
         # Extract last error lines (up to 5)
-        error_lines = [line for line in lines if 'ERROR' in line.upper()]
+        error_lines = [line for line in lines if "ERROR" in line.upper()]
         last_error_lines = error_lines[-5:] if error_lines else []
 
         # Detect failing stages (common in pipeline logs)
@@ -224,7 +217,7 @@ class ProgressiveLogClient:
             warning_count=warning_count,
             last_error_lines=last_error_lines,
             failing_stages=list(set(failing_stages)),  # Deduplicate
-            is_complete=not chunk.has_more
+            is_complete=not chunk.has_more,
         )
 
     def search_log(
@@ -249,7 +242,7 @@ class ProgressiveLogClient:
         """
         # Get log chunk
         chunk = self.get_log_chunk(job_name, build_number, start=0, max_bytes=max_bytes)
-        lines = chunk.text.split('\n')
+        lines = chunk.text.split("\n")
 
         matches = []
         pattern_re = re.compile(pattern)
@@ -259,7 +252,7 @@ class ProgressiveLogClient:
                 # Extract context window
                 start_line = max(0, i - window_lines)
                 end_line = min(len(lines), i + window_lines + 1)
-                context = '\n'.join(lines[start_line:end_line])
+                context = "\n".join(lines[start_line:end_line])
                 matches.append((i + 1, context))  # Line numbers are 1-indexed
 
         return matches

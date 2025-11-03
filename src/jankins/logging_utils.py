@@ -31,11 +31,27 @@ class StructuredFormatter(logging.Formatter):
         # Add extra fields from record
         for key, value in record.__dict__.items():
             if key not in [
-                "name", "msg", "args", "created", "filename", "funcName",
-                "levelname", "levelno", "lineno", "module", "msecs",
-                "message", "pathname", "process", "processName",
-                "relativeCreated", "thread", "threadName", "exc_info",
-                "exc_text", "stack_info"
+                "name",
+                "msg",
+                "args",
+                "created",
+                "filename",
+                "funcName",
+                "levelname",
+                "levelno",
+                "lineno",
+                "module",
+                "msecs",
+                "message",
+                "pathname",
+                "process",
+                "processName",
+                "relativeCreated",
+                "thread",
+                "threadName",
+                "exc_info",
+                "exc_text",
+                "stack_info",
             ]:
                 log_data[key] = value
 
@@ -79,9 +95,7 @@ def setup_logging(level: str = "INFO", use_json: bool = False) -> None:
     if use_json:
         formatter = StructuredFormatter()
     else:
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     handler.setFormatter(formatter)
     handler.addFilter(ContextFilter())
@@ -101,10 +115,9 @@ class RequestLogger:
         """Start request logging."""
         correlation_id_var.set(self.correlation_id)
         self.start_time = time.time()
-        self.logger.info(f"Starting {self.tool_name}", extra={
-            "tool": self.tool_name,
-            "event": "request_start"
-        })
+        self.logger.info(
+            f"Starting {self.tool_name}", extra={"tool": self.tool_name, "event": "request_start"}
+        )
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
@@ -112,18 +125,20 @@ class RequestLogger:
         took_ms = int((time.time() - self.start_time) * 1000) if self.start_time else 0
 
         if exc_type:
-            self.logger.error(f"Failed {self.tool_name}", extra={
-                "tool": self.tool_name,
-                "event": "request_failed",
-                "took_ms": took_ms,
-                "error": str(exc_val)
-            })
+            self.logger.error(
+                f"Failed {self.tool_name}",
+                extra={
+                    "tool": self.tool_name,
+                    "event": "request_failed",
+                    "took_ms": took_ms,
+                    "error": str(exc_val),
+                },
+            )
         else:
-            self.logger.info(f"Completed {self.tool_name}", extra={
-                "tool": self.tool_name,
-                "event": "request_completed",
-                "took_ms": took_ms
-            })
+            self.logger.info(
+                f"Completed {self.tool_name}",
+                extra={"tool": self.tool_name, "event": "request_completed", "took_ms": took_ms},
+            )
 
         correlation_id_var.set(None)
 

@@ -31,10 +31,8 @@ def test_tool_registration():
     tool = Tool(
         name="test_tool",
         description="A test tool",
-        parameters=[
-            ToolParameter("arg1", ToolParameterType.STRING, "First arg", required=True)
-        ],
-        handler=test_handler
+        parameters=[ToolParameter("arg1", ToolParameterType.STRING, "First arg", required=True)],
+        handler=test_handler,
     )
 
     server.register_tool(tool)
@@ -77,6 +75,7 @@ def test_list_tools():
 
 def test_tool_schema_generation():
     """Test tool schema generation."""
+
     async def handler(args):
         return {}
 
@@ -85,9 +84,11 @@ def test_tool_schema_generation():
         description="My test tool",
         parameters=[
             ToolParameter("name", ToolParameterType.STRING, "Name parameter", required=True),
-            ToolParameter("count", ToolParameterType.NUMBER, "Count parameter", required=False, default=10),
+            ToolParameter(
+                "count", ToolParameterType.NUMBER, "Count parameter", required=False, default=10
+            ),
         ],
-        handler=handler
+        handler=handler,
     )
 
     schema = tool.to_schema()
@@ -116,7 +117,7 @@ async def test_call_tool_success():
             ToolParameter("a", ToolParameterType.NUMBER, "First number", required=True),
             ToolParameter("b", ToolParameterType.NUMBER, "Second number", required=True),
         ],
-        handler=add_handler
+        handler=add_handler,
     )
 
     server.register_tool(tool)
@@ -151,7 +152,7 @@ async def test_call_tool_missing_params():
         parameters=[
             ToolParameter("required_param", ToolParameterType.STRING, "Required", required=True)
         ],
-        handler=handler
+        handler=handler,
     )
 
     server.register_tool(tool)

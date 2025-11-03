@@ -57,18 +57,16 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
                 # Apply filters
                 text = chunk.text
                 if filter_regex or redact:
-                    text = log_client.filter_log(
-                        text,
-                        pattern=filter_regex,
-                        redact=redact
-                    )
+                    text = log_client.filter_log(text, pattern=filter_regex, redact=redact)
 
-                chunks = [{
-                    "text": text,
-                    "start": chunk.start,
-                    "end": chunk.end,
-                    "has_more": chunk.has_more
-                }]
+                chunks = [
+                    {
+                        "text": text,
+                        "start": chunk.start,
+                        "end": chunk.end,
+                        "has_more": chunk.has_more,
+                    }
+                ]
 
             # Format response
             result = TokenAwareFormatter.format_log_response(
@@ -79,24 +77,59 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
             result["job_name"] = job_name
 
             took_ms = int((time.time() - start_time) * 1000)
-            return TokenAwareFormatter.add_metadata(
-                result, correlation_id, took_ms, output_format
-            )
+            return TokenAwareFormatter.add_metadata(result, correlation_id, took_ms, output_format)
 
-    mcp_server.register_tool(Tool(
-        name="get_build_log",
-        description="Get build log with smart truncation and filtering. Returns summary by default, full text on request.",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("start", ToolParameterType.NUMBER, "Starting byte offset", required=False, default=0),
-            ToolParameter("max_bytes", ToolParameterType.NUMBER, "Maximum bytes to retrieve", required=False),
-            ToolParameter("filter_regex", ToolParameterType.STRING, "Regex pattern to filter log lines", required=False),
-            ToolParameter("redact", ToolParameterType.BOOLEAN, "Remove ANSI codes and secret masks", required=False, default=True),
-            ToolParameter("format", ToolParameterType.STRING, "Output format", required=False, default="summary", enum=["summary", "full"]),
-        ],
-        handler=get_log_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="get_build_log",
+            description="Get build log with smart truncation and filtering. Returns summary by default, full text on request.",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "start",
+                    ToolParameterType.NUMBER,
+                    "Starting byte offset",
+                    required=False,
+                    default=0,
+                ),
+                ToolParameter(
+                    "max_bytes",
+                    ToolParameterType.NUMBER,
+                    "Maximum bytes to retrieve",
+                    required=False,
+                ),
+                ToolParameter(
+                    "filter_regex",
+                    ToolParameterType.STRING,
+                    "Regex pattern to filter log lines",
+                    required=False,
+                ),
+                ToolParameter(
+                    "redact",
+                    ToolParameterType.BOOLEAN,
+                    "Remove ANSI codes and secret masks",
+                    required=False,
+                    default=True,
+                ),
+                ToolParameter(
+                    "format",
+                    ToolParameterType.STRING,
+                    "Output format",
+                    required=False,
+                    default="summary",
+                    enum=["summary", "full"],
+                ),
+            ],
+            handler=get_log_handler,
+        )
+    )
 
     # search_log
     async def search_log_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -133,10 +166,10 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
                 "matches": [
                     {
                         "line_number": line_num,
-                        "context": context[:500]  # Limit context size
+                        "context": context[:500],  # Limit context size
                     }
                     for line_num, context in matches[:20]  # Top 20 matches
-                ]
+                ],
             }
 
             took_ms = int((time.time() - start_time) * 1000)
@@ -144,18 +177,39 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
                 result, correlation_id, took_ms, OutputFormat.SUMMARY
             )
 
-    mcp_server.register_tool(Tool(
-        name="search_log",
-        description="Search build log for pattern and return matching lines with context",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("number", ToolParameterType.STRING, "Build number or 'last'", required=False, default="last"),
-            ToolParameter("pattern", ToolParameterType.STRING, "Regex pattern to search for", required=True),
-            ToolParameter("window_lines", ToolParameterType.NUMBER, "Lines of context before/after match", required=False, default=5),
-            ToolParameter("max_bytes", ToolParameterType.NUMBER, "Maximum bytes to search", required=False),
-        ],
-        handler=search_log_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="search_log",
+            description="Search build log for pattern and return matching lines with context",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "number",
+                    ToolParameterType.STRING,
+                    "Build number or 'last'",
+                    required=False,
+                    default="last",
+                ),
+                ToolParameter(
+                    "pattern",
+                    ToolParameterType.STRING,
+                    "Regex pattern to search for",
+                    required=True,
+                ),
+                ToolParameter(
+                    "window_lines",
+                    ToolParameterType.NUMBER,
+                    "Lines of context before/after match",
+                    required=False,
+                    default=5,
+                ),
+                ToolParameter(
+                    "max_bytes", ToolParameterType.NUMBER, "Maximum bytes to search", required=False
+                ),
+            ],
+            handler=search_log_handler,
+        )
+    )
 
     # tail_log_live (polling-based live tail)
     async def tail_log_live_handler(args: dict[str, Any]) -> dict[str, Any]:
@@ -169,9 +223,7 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
             max_bytes = args.get("max_bytes", config.log_max_bytes_default)
 
             # Get log chunk starting from start_byte
-            chunk = log_client.get_log_chunk(
-                job_name, build_number, start_byte, max_bytes
-            )
+            chunk = log_client.get_log_chunk(job_name, build_number, start_byte, max_bytes)
 
             result = {
                 "build_number": build_number,
@@ -188,14 +240,26 @@ def register_log_tools(mcp_server, jenkins_adapter, config):
                 result, correlation_id, took_ms, OutputFormat.FULL
             )
 
-    mcp_server.register_tool(Tool(
-        name="tail_log_live",
-        description="Get log chunk for live tailing (poll repeatedly with next_byte for streaming effect)",
-        parameters=[
-            ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
-            ToolParameter("build_number", ToolParameterType.NUMBER, "Build number", required=True),
-            ToolParameter("start_byte", ToolParameterType.NUMBER, "Starting byte offset", required=False, default=0),
-            ToolParameter("max_bytes", ToolParameterType.NUMBER, "Maximum bytes per chunk", required=False),
-        ],
-        handler=tail_log_live_handler
-    ))
+    mcp_server.register_tool(
+        Tool(
+            name="tail_log_live",
+            description="Get log chunk for live tailing (poll repeatedly with next_byte for streaming effect)",
+            parameters=[
+                ToolParameter("name", ToolParameterType.STRING, "Full job name", required=True),
+                ToolParameter(
+                    "build_number", ToolParameterType.NUMBER, "Build number", required=True
+                ),
+                ToolParameter(
+                    "start_byte",
+                    ToolParameterType.NUMBER,
+                    "Starting byte offset",
+                    required=False,
+                    default=0,
+                ),
+                ToolParameter(
+                    "max_bytes", ToolParameterType.NUMBER, "Maximum bytes per chunk", required=False
+                ),
+            ],
+            handler=tail_log_live_handler,
+        )
+    )

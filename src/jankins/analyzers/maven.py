@@ -30,10 +30,7 @@ class MavenAnalyzer(LogAnalyzer):
         Returns:
             AnalysisResult with Maven-specific information
         """
-        result = AnalysisResult(
-            build_tool="maven",
-            detected=self.detect(log_content)
-        )
+        result = AnalysisResult(build_tool="maven", detected=self.detect(log_content))
 
         if not result.detected:
             result.summary = "Maven build not detected in log"
@@ -66,8 +63,7 @@ class MavenAnalyzer(LogAnalyzer):
         test_matches = re.findall(test_failure_pattern, log_content)
         if test_matches:
             result.test_failures = sum(
-                int(failures) + int(errors)
-                for failures, errors in test_matches
+                int(failures) + int(errors) for failures, errors in test_matches
             )
 
         # Extract failed dependencies
@@ -98,47 +94,50 @@ class MavenAnalyzer(LogAnalyzer):
 
         # Check for dependency resolution failures
         if "Could not resolve dependencies" in log_content:
-            issues.append({
-                "type": "dependency_resolution",
-                "severity": "error",
-                "message": "Failed to resolve project dependencies"
-            })
+            issues.append(
+                {
+                    "type": "dependency_resolution",
+                    "severity": "error",
+                    "message": "Failed to resolve project dependencies",
+                }
+            )
 
         # Check for compilation failures
         if "Compilation failure" in log_content or "compilation failed" in log_content.lower():
-            issues.append({
-                "type": "compilation",
-                "severity": "error",
-                "message": "Java compilation failed"
-            })
+            issues.append(
+                {"type": "compilation", "severity": "error", "message": "Java compilation failed"}
+            )
 
         # Check for test failures
         if "There are test failures" in log_content:
-            issues.append({
-                "type": "test_failure",
-                "severity": "error",
-                "message": "Unit or integration tests failed"
-            })
+            issues.append(
+                {
+                    "type": "test_failure",
+                    "severity": "error",
+                    "message": "Unit or integration tests failed",
+                }
+            )
 
         # Check for plugin execution failures
-        plugin_failure = re.search(
-            r"Failed to execute goal ([\w\.\-:]+)",
-            log_content
-        )
+        plugin_failure = re.search(r"Failed to execute goal ([\w\.\-:]+)", log_content)
         if plugin_failure:
-            issues.append({
-                "type": "plugin_execution",
-                "severity": "error",
-                "message": f"Maven plugin failed: {plugin_failure.group(1)}"
-            })
+            issues.append(
+                {
+                    "type": "plugin_execution",
+                    "severity": "error",
+                    "message": f"Maven plugin failed: {plugin_failure.group(1)}",
+                }
+            )
 
         # Check for out of memory
         if "java.lang.OutOfMemoryError" in log_content:
-            issues.append({
-                "type": "out_of_memory",
-                "severity": "error",
-                "message": "Maven build ran out of memory"
-            })
+            issues.append(
+                {
+                    "type": "out_of_memory",
+                    "severity": "error",
+                    "message": "Maven build ran out of memory",
+                }
+            )
 
         return issues
 
@@ -154,34 +153,20 @@ class MavenAnalyzer(LogAnalyzer):
         recommendations = []
 
         if result.dependencies_failed:
-            recommendations.append(
-                "Check dependency versions and repository availability"
-            )
-            recommendations.append(
-                "Run 'mvn dependency:tree' to diagnose dependency conflicts"
-            )
+            recommendations.append("Check dependency versions and repository availability")
+            recommendations.append("Run 'mvn dependency:tree' to diagnose dependency conflicts")
 
         if result.compilation_errors > 0:
-            recommendations.append(
-                "Fix compilation errors in source code"
-            )
-            recommendations.append(
-                "Ensure correct Java version is configured"
-            )
+            recommendations.append("Fix compilation errors in source code")
+            recommendations.append("Ensure correct Java version is configured")
 
         if result.test_failures > 0:
-            recommendations.append(
-                "Review failing test cases and fix issues"
-            )
-            recommendations.append(
-                "Run tests locally: mvn test"
-            )
+            recommendations.append("Review failing test cases and fix issues")
+            recommendations.append("Run tests locally: mvn test")
 
         for issue in result.issues:
             if issue["type"] == "out_of_memory":
-                recommendations.append(
-                    "Increase Maven heap size: MAVEN_OPTS='-Xmx2048m'"
-                )
+                recommendations.append("Increase Maven heap size: MAVEN_OPTS='-Xmx2048m'")
 
         if not recommendations:
             recommendations.append("Review error messages for specific issues")
@@ -206,9 +191,7 @@ class MavenAnalyzer(LogAnalyzer):
             parts.append(f"{result.test_failures} test failure(s)")
 
         if result.dependencies_failed:
-            parts.append(
-                f"{len(result.dependencies_failed)} dependency resolution failure(s)"
-            )
+            parts.append(f"{len(result.dependencies_failed)} dependency resolution failure(s)")
 
         if len(result.errors) > 0:
             parts.append(f"{len(result.errors)} error message(s)")

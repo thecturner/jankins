@@ -38,27 +38,18 @@ async def handle_mcp_request(request: Request) -> Response:
                     "error": {
                         "code": -32000,
                         "message": "Origin not allowed",
-                        "data": {
-                            "expected": config.origin_expected,
-                            "received": origin
-                        }
-                    }
+                        "data": {"expected": config.origin_expected, "received": origin},
+                    },
                 },
-                status_code=403
+                status_code=403,
             )
 
     try:
         body = await request.json()
     except json.JSONDecodeError:
         return JSONResponse(
-            {
-                "jsonrpc": "2.0",
-                "error": {
-                    "code": -32700,
-                    "message": "Parse error: Invalid JSON"
-                }
-            },
-            status_code=400
+            {"jsonrpc": "2.0", "error": {"code": -32700, "message": "Parse error: Invalid JSON"}},
+            status_code=400,
         )
 
     # Handle the request
@@ -74,30 +65,20 @@ async def handle_mcp_request(request: Request) -> Response:
             try:
                 if method == "tools/call":
                     result = await mcp_server.call_tool(
-                        params.get("name"),
-                        params.get("arguments", {})
+                        params.get("name"), params.get("arguments", {})
                     )
-                    response = {
-                        "jsonrpc": "2.0",
-                        "id": request_id,
-                        "result": result
-                    }
+                    response = {"jsonrpc": "2.0", "id": request_id, "result": result}
                 elif method == "prompts/get":
                     messages = await mcp_server.get_prompt(
-                        params.get("name"),
-                        params.get("arguments", {})
+                        params.get("name"), params.get("arguments", {})
                     )
                     response = {
                         "jsonrpc": "2.0",
                         "id": request_id,
-                        "result": {"messages": messages}
+                        "result": {"messages": messages},
                     }
             except JankinsError as e:
-                response = {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "error": e.to_dict()
-                }
+                response = {"jsonrpc": "2.0", "id": request_id, "error": e.to_dict()}
 
         return JSONResponse(response)
 
@@ -109,12 +90,10 @@ async def handle_mcp_request(request: Request) -> Response:
                 "error": {
                     "code": -32603,
                     "message": "Internal error",
-                    "data": {
-                        "hint": "Check server logs for details"
-                    }
-                }
+                    "data": {"hint": "Check server logs for details"},
+                },
             },
-            status_code=500
+            status_code=500,
         )
 
 
@@ -130,20 +109,14 @@ async def handle_sse(request: Request) -> EventSourceResponse:
     if config.origin_enforce:
         origin = request.headers.get("origin", "")
         if config.origin_expected and origin != config.origin_expected:
-            return JSONResponse(
-                {"error": "Origin not allowed"},
-                status_code=403
-            )
+            return JSONResponse({"error": "Origin not allowed"}, status_code=403)
 
     async def event_generator():
         """Generate SSE events."""
         # Send initial connection event
         yield {
             "event": "connected",
-            "data": json.dumps({
-                "server": mcp_server.name,
-                "version": mcp_server.version
-            })
+            "data": json.dumps({"server": mcp_server.name, "version": mcp_server.version}),
         }
 
         # In a real implementation, this would handle bidirectional
@@ -166,16 +139,11 @@ async def handle_ready(request: Request) -> JSONResponse:
 
 async def handle_metrics(request: Request) -> Response:
     """Metrics endpoint (placeholder for Prometheus)."""
-    return Response(
-        content="# Metrics not yet implemented\n",
-        media_type="text/plain"
-    )
+    return Response(content="# Metrics not yet implemented\n", media_type="text/plain")
 
 
 def create_transport(
-    mcp_server: MCPServer,
-    config: JankinsConfig,
-    transport_type: str = "http"
+    mcp_server: MCPServer, config: JankinsConfig, transport_type: str = "http"
 ) -> Starlette:
     """Create Starlette application with MCP transport.
 

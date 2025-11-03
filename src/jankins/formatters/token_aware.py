@@ -53,29 +53,23 @@ class TokenAwareFormatter:
             return {
                 "jobs": [{"name": j["fullname"], "url": j["url"]} for j in jobs[:limit]],
                 "total": len(jobs),
-                "shown": min(limit, len(jobs))
+                "shown": min(limit, len(jobs)),
             }
 
         if format == OutputFormat.SUMMARY:
             summary_jobs = []
             for job in jobs[:limit]:
-                summary_jobs.append({
-                    "name": job["fullname"],
-                    "color": job.get("color", "unknown"),  # Status indicator
-                    "url": job["url"]
-                })
-            return {
-                "jobs": summary_jobs,
-                "total": len(jobs),
-                "shown": min(limit, len(jobs))
-            }
+                summary_jobs.append(
+                    {
+                        "name": job["fullname"],
+                        "color": job.get("color", "unknown"),  # Status indicator
+                        "url": job["url"],
+                    }
+                )
+            return {"jobs": summary_jobs, "total": len(jobs), "shown": min(limit, len(jobs))}
 
         # FULL format
-        return {
-            "jobs": jobs[:limit],
-            "total": len(jobs),
-            "shown": min(limit, len(jobs))
-        }
+        return {"jobs": jobs[:limit], "total": len(jobs), "shown": min(limit, len(jobs))}
 
     @staticmethod
     def format_build(
@@ -190,9 +184,9 @@ class TokenAwareFormatter:
         if format == OutputFormat.SUMMARY:
             return {
                 "hypotheses": hypotheses[:3],  # Top 3
-                "top_errors": top_errors[:5],   # Top 5
+                "top_errors": top_errors[:5],  # Top 5
                 "failing_stages": failing_stages,
-                "next_steps": next_steps[:5],   # Top 5
+                "next_steps": next_steps[:5],  # Top 5
             }
 
         # FULL format
@@ -286,5 +280,5 @@ class TokenAwareFormatter:
                 "took_ms": took_ms,
                 "format": format_used.value,
                 "token_estimate": token_estimate,
-            }
+            },
         }
