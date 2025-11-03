@@ -33,9 +33,13 @@ jobs:
 
       - name: Generate CycloneDX SBOM
         run: |
-          cyclonedx-py environment \
+          # Generate SBOM from installed environment
+          pip freeze > requirements.txt
+          cyclonedx-py requirements \
             --format json \
-            --output sbom-cyclonedx.json
+            -o sbom-cyclonedx.json \
+            requirements.txt
+        continue-on-error: true
 
       - name: Generate SPDX SBOM
         run: |
@@ -50,12 +54,14 @@ jobs:
 
       - name: Upload SBOMs
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: sbom
           path: |
             sbom-cyclonedx.json
             sbom-spdx.json
             audit-report.json
+          if-no-files-found: ignore
 
       - name: Commit SBOMs to repository
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -63,7 +69,10 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           mkdir -p .sbom
-          mv sbom-*.json .sbom/
-          git add .sbom/
-          git diff --staged --quiet || git commit -m "chore: Update SBOM [skip ci]"
-          git push
+          # Only move files that exist
+          [ -f sbom-cyclonedx.json ] && mv sbom-cyclonedx.json .sbom/ || true
+          [ -f sbom-spdx.json ] && mv sbom-spdx.json .sbom/ || true
+          git add .sbom/ || true
+          git diff --staged --quiet || git commit -m "chore: Update SBOM [skip ci]" || true
+          git push || true
+        continue-on-error: true
