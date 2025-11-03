@@ -1,0 +1,131 @@
+{
+  "dashboard": {
+    "title": "jankins Overview",
+    "tags": ["jankins", "mcp", "jenkins"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(jankins_requests_total[5m]))",
+            "legendFormat": "Requests/sec"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(jankins_requests_success[5m])) / sum(rate(jankins_requests_total[5m])) * 100"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "options": {
+          "unit": "percent",
+          "thresholds": [
+            {"value": 0, "color": "red"},
+            {"value": 95, "color": "yellow"},
+            {"value": 99, "color": "green"}
+          ]
+        }
+      },
+      {
+        "id": 3,
+        "title": "Latency (p50, p95, p99)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, jankins_request_duration_ms)",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, jankins_request_duration_ms)",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, jankins_request_duration_ms)",
+            "legendFormat": "p99"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "yaxes": [
+          {"format": "ms", "label": "Duration"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Top Tools by Usage",
+        "type": "bargauge",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (tool) (jankins_tool_usage))",
+            "legendFormat": "{{tool}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Error Rate by Type",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (error_type) (rate(jankins_errors_total[5m]))",
+            "legendFormat": "{{error_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Cache Hit Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "jankins_cache_hits / (jankins_cache_hits + jankins_cache_misses)"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
+        "options": {
+          "unit": "percentunit",
+          "thresholds": [
+            {"value": 0, "color": "red"},
+            {"value": 0.5, "color": "yellow"},
+            {"value": 0.8, "color": "green"}
+          ]
+        }
+      },
+      {
+        "id": 7,
+        "title": "Cache Size",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "jankins_cache_size"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 16}
+      },
+      {
+        "id": 8,
+        "title": "Jenkins API Call Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum by (endpoint) (rate(jankins_jenkins_calls_total[5m]))",
+            "legendFormat": "{{endpoint}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20}
+      }
+    ],
+    "refresh": "30s",
+    "time": {"from": "now-6h", "to": "now"}
+  }
+}

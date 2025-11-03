@@ -1,0 +1,19 @@
+name: Security Vulnerability
+description: Report a security vulnerability (use private reporting instead!)
+title: "[SECURITY]: "
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **STOP! Please do not report security vulnerabilities here!**
+
+        Security vulnerabilities should be reported privately to avoid public disclosure before a fix is available.
+
+        **Please report security issues via:**
+        - GitHub Security Advisories: https://github.com/thecturner/jankins/security/advisories/new
+        - Email: [security contact email]
+
+        See SECURITY.md for our full security policy.
+
+        This issue will be closed immediately. Thank you for helping keep jankins secure!

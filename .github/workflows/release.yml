@@ -1,0 +1,157 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  id-token: write  # Required for SLSA provenance
+
+jobs:
+  # Build and generate SLSA provenance
+  build:
+    name: Build Distribution
+    runs-on: ubuntu-latest
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build distributions
+        run: python -m build
+
+      - name: Generate hashes
+        id: hash
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+          echo "hashes=$(sha256sum * | base64 -w0)" >> $GITHUB_OUTPUT
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+          if-no-files-found: error
+
+  # Generate SLSA provenance
+  provenance:
+    name: Generate SLSA Provenance
+    needs: [build]
+    permissions:
+      actions: read
+      id-token: write
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.10.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      upload-assets: true
+
+  # Sign with Sigstore
+  sign:
+    name: Sign Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+      - name: Install Sigstore
+        run: pip install sigstore
+
+      - name: Sign distributions
+        run: |
+          for file in dist/*; do
+            sigstore sign "$file"
+          done
+
+      - name: Upload signatures
+        uses: actions/upload-artifact@v4
+        with:
+          name: signatures
+          path: dist/*.sigstore
+
+  # Create GitHub Release
+  release:
+    name: Create GitHub Release
+    needs: [build, provenance, sign]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+      - name: Download signatures
+        uses: actions/download-artifact@v4
+        with:
+          name: signatures
+          path: dist/
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          # Extract version from tag
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Generate changelog for this version
+          awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | head -n -1 > release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: |
+            dist/*
+          generate_release_notes: false
+          draft: false
+          prerelease: false
+
+  # Publish to PyPI
+  publish-pypi:
+    name: Publish to PyPI
+    needs: [build, provenance, sign]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/jankins/
+    permissions:
+      id-token: write  # Required for trusted publishing
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          print-hash: true
+          verbose: true
