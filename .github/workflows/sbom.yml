@@ -36,8 +36,8 @@ jobs:
           # Generate SBOM from installed environment
           pip freeze > requirements.txt
           cyclonedx-py requirements \
-            --format json \
             -o sbom-cyclonedx.json \
+            --of json \
             requirements.txt
         continue-on-error: true
 
