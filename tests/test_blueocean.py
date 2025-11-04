@@ -16,7 +16,9 @@ class TestBlueOceanClient:
         """Create Blue Ocean client."""
         return BlueOceanClient(mock_jenkins_adapter)
 
-    def test_get_pipeline_nodes(self, blueocean_client, sample_blueocean_nodes, mock_jenkins_client):
+    def test_get_pipeline_nodes(
+        self, blueocean_client, sample_blueocean_nodes, mock_jenkins_client
+    ):
         """Test getting pipeline nodes."""
         # Mock the adapter's jenkins client
         blueocean_client.adapter.client = mock_jenkins_client
