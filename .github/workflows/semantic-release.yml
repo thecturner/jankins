@@ -34,8 +34,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install python-semantic-release
 
+      - name: Check if triggered by bot commit
+        id: bot_check
+        run: |
+          # Skip if last commit was made by github-actions bot (e.g., SBOM updates)
+          LAST_AUTHOR=$(git log -1 --pretty=format:'%an')
+          if [[ "$LAST_AUTHOR" == "github-actions[bot]" ]]; then
+            echo "skip_bot=true" >> $GITHUB_OUTPUT
+            echo "Skipping release - last commit was from github-actions[bot]"
+          else
+            echo "skip_bot=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check if release needed
         id: check
+        if: steps.bot_check.outputs.skip_bot == 'false'
         run: |
           # Check if there are releasable commits
           semantic-release version --print 2>&1 | tee version_output.txt
@@ -48,7 +61,7 @@ jobs:
           fi
 
       - name: Create Release
-        if: steps.check.outputs.skip == 'false'
+        if: steps.bot_check.outputs.skip_bot == 'false' && steps.check.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -56,12 +69,15 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Pull latest changes to avoid conflicts with concurrent workflows (e.g., SBOM)
+          git pull --rebase origin master || true
+
           # Run semantic release
           semantic-release version
           semantic-release publish
 
       - name: Trigger release workflow
-        if: steps.check.outputs.skip == 'false'
+        if: steps.bot_check.outputs.skip_bot == 'false' && steps.check.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
