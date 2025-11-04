@@ -37,8 +37,9 @@ jobs:
         id: hash
         run: |
           cd dist
-          sha256sum * > checksums.txt
-          echo "hashes=$(sha256sum * | base64 -w0)" >> $GITHUB_OUTPUT
+          # Generate hashes but exclude from dist files
+          sha256sum *.tar.gz *.whl > ../checksums.txt
+          echo "hashes=$(sha256sum *.tar.gz *.whl | base64 -w0)" >> $GITHUB_OUTPUT
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
