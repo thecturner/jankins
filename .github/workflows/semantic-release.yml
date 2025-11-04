@@ -6,20 +6,17 @@ on:
       - master
       - main
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
     concurrency: release
     if: github.repository == 'thecturner/jankins'
-    environment:
-      name: pypi
-      url: https://pypi.org/project/jankins/
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      id-token: write  # Required for PyPI Trusted Publishing
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install python-semantic-release twine
+          pip install python-semantic-release
 
       - name: Check if release needed
         id: check
@@ -65,6 +62,15 @@ jobs:
 
       - name: Trigger release workflow
         if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # The tag push will automatically trigger the release.yml workflow
-          echo "Release created, release workflow will be triggered automatically"
+          # Get the latest tag (the one semantic-release just created)
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "Triggering release workflow for tag: $LATEST_TAG"
+
+          # Trigger the release.yml workflow for PyPI publishing
+          gh workflow run release.yml --ref "$LATEST_TAG"
+
+          echo "Release workflow triggered for $LATEST_TAG. Check status at:"
+          echo "https://github.com/${{ github.repository }}/actions/workflows/release.yml"
