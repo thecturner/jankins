@@ -1,0 +1,6 @@
+# .mailmap - Maps author/committer names and email addresses
+# This file is used to consolidate contributor identities
+
+# Exclude automated contributors from the contributors list
+# Claude Code assistant contributions are attributed to the actual developer
+<noreply@anthropic.com> <noreply@anthropic.com>
