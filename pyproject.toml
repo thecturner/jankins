@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jankins"
-version = "1.2.1"
+version = "1.2.2"
 description = "Token-optimized Jenkins MCP server with smart log handling and advanced triage"
 readme = "README.md"
 requires-python = ">=3.10"
