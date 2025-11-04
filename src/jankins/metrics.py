@@ -146,6 +146,23 @@ class MetricsCollector:
             index = min(index, len(sorted_durations) - 1)
             return sorted_durations[index]
 
+    def _calculate_percentile(self, percentile: float) -> float:
+        """Calculate duration percentile without locking.
+
+        Args:
+            percentile: Percentile to calculate (0-100)
+
+        Returns:
+            Duration at percentile in milliseconds
+        """
+        if not self._durations:
+            return 0.0
+
+        sorted_durations = sorted(self._durations)
+        index = int(len(sorted_durations) * (percentile / 100))
+        index = min(index, len(sorted_durations) - 1)
+        return sorted_durations[index]
+
     def get_summary(self) -> dict:
         """Get metrics summary.
 
@@ -153,9 +170,9 @@ class MetricsCollector:
             Dictionary with metrics summary
         """
         with self._lock:
-            p50 = self.get_percentile(50)
-            p95 = self.get_percentile(95)
-            p99 = self.get_percentile(99)
+            p50 = self._calculate_percentile(50)
+            p95 = self._calculate_percentile(95)
+            p99 = self._calculate_percentile(99)
 
             return {
                 "uptime_seconds": round(self.summary.uptime_seconds, 2),
@@ -227,13 +244,13 @@ class MetricsCollector:
             lines.append(f"jankins_request_duration_ms_sum {self.summary.total_duration_ms:.2f}")
             lines.append(f"jankins_request_duration_ms_count {self.summary.total_requests}")
             lines.append(
-                f'jankins_request_duration_ms{{quantile="0.5"}} {self.get_percentile(50):.2f}'
+                f'jankins_request_duration_ms{{quantile="0.5"}} {self._calculate_percentile(50):.2f}'
             )
             lines.append(
-                f'jankins_request_duration_ms{{quantile="0.95"}} {self.get_percentile(95):.2f}'
+                f'jankins_request_duration_ms{{quantile="0.95"}} {self._calculate_percentile(95):.2f}'
             )
             lines.append(
-                f'jankins_request_duration_ms{{quantile="0.99"}} {self.get_percentile(99):.2f}'
+                f'jankins_request_duration_ms{{quantile="0.99"}} {self._calculate_percentile(99):.2f}'
             )
 
             # Tool calls by name

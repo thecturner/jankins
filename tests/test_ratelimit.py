@@ -77,8 +77,13 @@ class TestRateLimiter:
         limiter = RateLimiter(requests_per_minute=60, burst=10)
 
         # Should allow request
-        assert limiter.allow_request("user1") is True
-        assert limiter.allow_request("user1") is True
+        allowed, retry_after = limiter.check_rate_limit("user1")
+        assert allowed is True
+        assert retry_after is None
+
+        allowed, retry_after = limiter.check_rate_limit("user1")
+        assert allowed is True
+        assert retry_after is None
 
     def test_rate_limit_enforcement(self):
         """Test rate limit enforcement."""
@@ -86,10 +91,14 @@ class TestRateLimiter:
 
         # Consume all burst tokens
         for _ in range(5):
-            assert limiter.allow_request("user1") is True
+            allowed, retry_after = limiter.check_rate_limit("user1")
+            assert allowed is True
 
         # Next request should be denied
-        assert limiter.allow_request("user1") is False
+        allowed, retry_after = limiter.check_rate_limit("user1")
+        assert allowed is False
+        assert retry_after is not None
+        assert retry_after > 0
 
     def test_different_users(self):
         """Test rate limiting per user."""
@@ -97,19 +106,20 @@ class TestRateLimiter:
 
         # User1 consumes all tokens
         for _ in range(5):
-            limiter.allow_request("user1")
+            limiter.check_rate_limit("user1")
 
         # User2 should still be allowed
-        assert limiter.allow_request("user2") is True
+        allowed, retry_after = limiter.check_rate_limit("user2")
+        assert allowed is True
 
     def test_bucket_cleanup(self):
         """Test automatic bucket cleanup."""
         limiter = RateLimiter(requests_per_minute=60, burst=10, cleanup_interval=1)
 
         # Create buckets for multiple users
-        limiter.allow_request("user1")
-        limiter.allow_request("user2")
-        limiter.allow_request("user3")
+        limiter.check_rate_limit("user1")
+        limiter.check_rate_limit("user2")
+        limiter.check_rate_limit("user3")
 
         assert len(limiter.buckets) == 3
 
@@ -122,13 +132,13 @@ class TestRateLimiter:
         assert len(limiter.buckets) >= 0
 
     def test_get_bucket_info(self):
-        """Test getting bucket information."""
+        """Test getting bucket statistics."""
         limiter = RateLimiter(requests_per_minute=60, burst=10)
 
-        limiter.allow_request("user1")
-        limiter.allow_request("user1")
+        limiter.check_rate_limit("user1")
+        limiter.check_rate_limit("user1")
 
-        info = limiter.get_bucket_info("user1")
-        assert "tokens_remaining" in info
-        assert "capacity" in info
-        assert info["tokens_remaining"] <= 10
+        stats = limiter.get_stats()
+        assert "active_buckets" in stats
+        assert "bucket_details" in stats
+        assert stats["active_buckets"] >= 1
