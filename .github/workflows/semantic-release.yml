@@ -1,0 +1,65 @@
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    concurrency: release
+    if: github.repository == 'thecturner/jankins'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-semantic-release
+
+      - name: Check if release needed
+        id: check
+        run: |
+          # Check if there are releasable commits
+          semantic-release version --print 2>&1 | tee version_output.txt
+          if grep -q "No release will be made" version_output.txt; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "No new release needed"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "New release will be created"
+          fi
+
+      - name: Create Release
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Run semantic release
+          semantic-release publish
+
+      - name: Trigger release workflow
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          # The tag push will automatically trigger the release.yml workflow
+          echo "Release created, release workflow will be triggered automatically"

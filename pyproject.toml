@@ -52,6 +52,7 @@ dev = [
     "safety>=3.2.0",
     "pre-commit>=3.7.0",
     "tox>=4.15.0",
+    "python-semantic-release>=9.0.0",
 ]
 
 [project.scripts]
@@ -136,3 +137,34 @@ skips = ["B101"]
 
 [tool.bandit.assert_used]
 exclude = ["*_test.py", "*test_*.py"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+version_variables = ["src/jankins/__init__.py:__version__"]
+branch = "master"
+upload_to_vcs_release = true
+upload_to_pypi = false
+build_command = "pip install build && python -m build"
+commit_message = "chore(release): {version}"
+commit_parser = "angular"
+major_on_zero = false
+
+[tool.semantic_release.branches.master]
+match = "(master|main)"
+prerelease = false
+
+[tool.semantic_release.changelog]
+template_dir = "templates"
+changelog_file = "CHANGELOG.md"
+exclude_commit_patterns = [
+    "chore\\(release\\):.*",
+    "chore\\(deps\\):.*",
+    "chore\\(ci\\):.*",
+    "chore\\(docker\\):.*",
+    "chore: Update SBOM.*",
+]
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = ["feat", "fix", "perf", "refactor", "docs", "style", "test", "build", "ci", "chore"]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]

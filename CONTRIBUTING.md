@@ -237,34 +237,40 @@ def example_function(param1: str, param2: int) -> bool:
 
 ## Commit Messages
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+**IMPORTANT:** This project uses automated semantic versioning. Your commit messages directly control version bumps and changelog generation.
 
-### Format
+We follow [Conventional Commits](https://www.conventionalcommits.org/). See [COMMIT_CONVENTION.md](.github/COMMIT_CONVENTION.md) for detailed guidelines.
+
+### Quick Reference
 
 ```
 <type>(<scope>): <subject>
 
-<body>
+[optional body]
 
-<footer>
+[optional footer]
 ```
 
-### Types
+### Types That Trigger Releases
 
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Code style (formatting, missing semicolons, etc.)
+- `feat`: New feature → **MINOR** version bump (0.x.0)
+- `fix`: Bug fix → **PATCH** version bump (0.0.x)
+- `perf`: Performance improvement → **PATCH** version bump
+- `feat!` or `BREAKING CHANGE:`: → **MAJOR** version bump (x.0.0)
+
+### Types That DON'T Trigger Releases
+
+- `docs`: Documentation changes
+- `style`: Code formatting
 - `refactor`: Code refactoring
-- `perf`: Performance improvement
-- `test`: Adding or updating tests
+- `test`: Test updates
 - `chore`: Maintenance tasks
 - `ci`: CI/CD changes
-- `security`: Security fixes
 
 ### Examples
 
 ```bash
+# Triggers MINOR bump (0.2.0 → 0.3.0)
 feat(tools): add retry_flaky_build tool
 
 Adds new MCP tool for automatically retrying flaky builds
@@ -274,6 +280,7 @@ Closes #123
 ```
 
 ```bash
+# Triggers PATCH bump (0.2.0 → 0.2.1)
 fix(cache): fix cache expiration logic
 
 Cache entries were not expiring correctly due to
@@ -282,13 +289,19 @@ timestamp comparison bug.
 Fixes #456
 ```
 
+```bash
+# Triggers MAJOR bump (0.2.0 → 1.0.0)
+feat(api)!: redesign rate limiter API
+
+BREAKING CHANGE: RateLimiter.allow_request() replaced with
+check_rate_limit() which returns (allowed, retry_after) tuple.
+```
+
+For complete documentation, see [COMMIT_CONVENTION.md](.github/COMMIT_CONVENTION.md).
+
 ## Pull Request Process
 
-1. **Update CHANGELOG.md**
-
-Add your changes under the `[Unreleased]` section following the existing format.
-
-2. **Ensure all checks pass**
+1. **Ensure all checks pass**
 
 - All tests pass
 - Code coverage is maintained or improved
@@ -296,64 +309,104 @@ Add your changes under the `[Unreleased]` section following the existing format.
 - Type checking passes
 - Pre-commit hooks pass
 
-3. **Submit PR**
+2. **Submit PR**
 
 - Use the PR template
 - Link related issues
 - Provide clear description
 - Add screenshots/logs if applicable
 
-4. **Code Review**
+3. **Code Review**
 
 - Address reviewer feedback
 - Keep discussion constructive
 - Update PR as needed
 
-5. **Merge**
+4. **Automated Merge**
 
-- PRs require approval from maintainer
-- Squash and merge is preferred
-- Delete branch after merge
+Once approved and CI passes:
+- **Dependabot PRs**: Auto-approved and auto-merged for patch/minor updates
+- **Other PRs**: Auto-merged after manual approval
+- CHANGELOG.md is generated automatically from commit messages
+- Version bumps happen automatically on merge to master
 
 ## Release Process
 
-Releases are automated via GitHub Actions:
+**Releases are fully automated** - you don't need to manually version or tag!
 
-1. **Update version**
+### How It Works
+
+When commits are merged to `master`:
+
+1. **Semantic Release analyzes commits**
+   - Scans all commits since last release
+   - Determines version bump based on conventional commit types
+   - Skips release if no `feat:`, `fix:`, or `perf:` commits
+
+2. **Version is updated automatically**
+   - Updates `pyproject.toml`
+   - Updates `src/jankins/__init__.py`
+   - Updates `CHANGELOG.md` from commit messages
+   - Creates git tag (e.g., `v0.3.0`)
+   - Pushes release commit and tag
+
+3. **Release workflow triggers**
+   - Builds distributions
+   - Generates SLSA provenance
+   - Signs with Sigstore
+   - Creates GitHub release
+   - Publishes to PyPI
+
+### What You Need to Do
+
+**Nothing!** Just write good commit messages following [Conventional Commits](.github/COMMIT_CONVENTION.md).
+
+### Version Bump Examples
 
 ```bash
-# Update version in pyproject.toml
-version = "0.3.0"
+# Current version: 0.2.1
+
+# These commits merged to master:
+fix(cache): fix memory leak          # PATCH
+feat(api): add new endpoint          # MINOR
+docs: update README                  # No bump
+
+# Result: 0.2.1 → 0.3.0 (MINOR wins)
 ```
-
-2. **Update CHANGELOG.md**
-
-Move changes from `[Unreleased]` to new version section:
-
-```markdown
-## [0.3.0] - 2025-01-15
-
-### Added
-- New feature...
-```
-
-3. **Commit and tag**
 
 ```bash
-git add pyproject.toml CHANGELOG.md
-git commit -m "chore: bump version to 0.3.0"
-git tag -a v0.3.0 -m "Release v0.3.0"
-git push origin master --tags
+# Current version: 0.2.1
+
+# These commits merged to master:
+fix(metrics): resolve deadlock       # PATCH
+fix(cache): fix expiration           # PATCH
+
+# Result: 0.2.1 → 0.2.2 (PATCH)
 ```
 
-4. **GitHub Actions**
+```bash
+# Current version: 0.2.1
 
-Automated release workflow:
-- Builds distributions
-- Generates SLSA provenance
-- Signs with Sigstore
-- Creates GitHub release
-- Publishes to PyPI
+# This commit merged to master:
+feat(api)!: redesign rate limiter    # MAJOR
+
+# Result: 0.2.1 → 1.0.0 (MAJOR)
+```
+
+### Manual Release (Emergency Only)
+
+If automation fails, you can manually trigger a release:
+
+```bash
+# Ensure you're on master with latest changes
+git checkout master
+git pull
+
+# Manually run semantic-release
+pip install python-semantic-release
+semantic-release version
+semantic-release publish
+```
 
 ## Project Structure
 
