@@ -63,13 +63,14 @@ jobs:
       - name: Trigger release workflow
         if: steps.check.outputs.skip == 'false'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           # Get the latest tag (the one semantic-release just created)
           LATEST_TAG=$(git describe --tags --abbrev=0)
           echo "Triggering release workflow for tag: $LATEST_TAG"
 
           # Trigger the release.yml workflow for PyPI publishing
+          # Requires PAT_TOKEN with 'actions: write' permission
           gh workflow run release.yml --ref "$LATEST_TAG"
 
           echo "Release workflow triggered for $LATEST_TAG. Check status at:"
