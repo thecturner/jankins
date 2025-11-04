@@ -334,6 +334,19 @@ Once approved and CI passes:
 
 **Releases are fully automated** - you don't need to manually version or tag!
 
+### Prerequisites for Full Automation
+
+For 100% automated PyPI publishing, you need to set up a Personal Access Token (PAT):
+
+1. Follow the instructions in [`.github/PAT_SETUP.md`](.github/PAT_SETUP.md)
+2. Create a fine-grained PAT with `Actions: write` and `Contents: write` permissions
+3. Add it as a repository secret named `PAT_TOKEN`
+
+**Without PAT_TOKEN**: Releases are 95% automated. After semantic-release creates a tag, manually trigger PyPI publish:
+```bash
+gh workflow run release.yml --ref v<VERSION>
+```
+
 ### How It Works
 
 When commits are merged to `master`:
@@ -350,7 +363,7 @@ When commits are merged to `master`:
    - Creates git tag (e.g., `v0.3.0`)
    - Pushes release commit and tag
 
-3. **Release workflow triggers**
+3. **Release workflow triggers** (requires PAT_TOKEN)
    - Builds distributions
    - Generates SLSA provenance
    - Signs with Sigstore
@@ -360,6 +373,8 @@ When commits are merged to `master`:
 ### What You Need to Do
 
 **Nothing!** Just write good commit messages following [Conventional Commits](.github/COMMIT_CONVENTION.md).
+
+The automation handles versioning, tagging, changelog, GitHub releases, and PyPI publishing.
 
 ### Version Bump Examples
 
