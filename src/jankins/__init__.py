@@ -8,4 +8,4 @@ Provides MCP-compliant access to Jenkins with:
 - Structured error handling with remediation hints
 """
 
-__version__ = "1.1.2"
+__version__ = "1.2.0"
