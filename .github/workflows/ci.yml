@@ -167,17 +167,80 @@ jobs:
             junit.xml
             coverage.xml
 
-  # Dependency review (PRs only)
+  # Dependency review (PRs only) - Custom implementation using pip-audit
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
-        continue-on-error: true  # Requires GitHub Advanced Security on private repos
         with:
-          fail-on-severity: moderate
+          fetch-depth: 0  # Need full history to compare
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install review tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit safety pip-licenses
+
+      - name: Install project dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Audit for vulnerabilities
+        id: audit
+        run: |
+          echo "## Dependency Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Run pip-audit and capture results
+          if pip-audit --format markdown --output audit.md; then
+            echo "✅ No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Vulnerabilities detected:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat audit.md >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Check licenses
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## License Compliance" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # List all licenses
+          pip-licenses --format=markdown --output-file=licenses.md
+
+          # Check for problematic licenses (GPL, AGPL, etc.)
+          if pip-licenses | grep -iE "(GPL|AGPL|SSPL|Commons Clause)" | grep -v LGPL; then
+            echo "⚠️ Potentially problematic licenses found:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            pip-licenses | grep -iE "(GPL|AGPL|SSPL|Commons Clause)" | grep -v LGPL >> $GITHUB_STEP_SUMMARY || true
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please review these licenses for compatibility with MIT." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No problematic licenses detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Safety check
+        continue-on-error: true
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Safety Database Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if safety check --json > safety.json 2>&1; then
+            echo "✅ No issues found in Safety database" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Issues found in Safety database" >> $GITHUB_STEP_SUMMARY
+            cat safety.json >> $GITHUB_STEP_SUMMARY || true
+          fi
 
   # Check all jobs status
   ci-success:
