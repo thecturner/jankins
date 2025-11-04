@@ -332,16 +332,16 @@
     },
     {
       "bom-ref": "requirements-L22",
-      "description": "requirements line 22: -e git+https://github.com/thecturner/jankins@1ed21195b19a91fe69038dc0f36fec96a7901afd#egg=jankins",
+      "description": "requirements line 22: -e git+https://github.com/thecturner/jankins@15df940f5c483797d1cf5247a0114781a0084df2#egg=jankins",
       "externalReferences": [
         {
           "comment": "explicit dist url",
           "type": "vcs",
-          "url": "git+https://github.com/thecturner/jankins@1ed21195b19a91fe69038dc0f36fec96a7901afd#egg=jankins"
+          "url": "git+https://github.com/thecturner/jankins@15df940f5c483797d1cf5247a0114781a0084df2#egg=jankins"
         }
       ],
       "name": "jankins",
-      "purl": "pkg:pypi/jankins?vcs_url=git%2Bhttps://github.com/thecturner/jankins%401ed21195b19a91fe69038dc0f36fec96a7901afd%23egg%3Djankins",
+      "purl": "pkg:pypi/jankins?vcs_url=git%2Bhttps://github.com/thecturner/jankins%4015df940f5c483797d1cf5247a0114781a0084df2%23egg%3Djankins",
       "type": "library"
     },
     {
@@ -1281,7 +1281,7 @@
     }
   ],
   "metadata": {
-    "timestamp": "2025-11-04T01:43:27.806450+00:00",
+    "timestamp": "2025-11-04T01:54:28.403203+00:00",
     "tools": {
       "components": [
         {
@@ -1385,7 +1385,7 @@
       ]
     }
   },
-  "serialNumber": "urn:uuid:6cd6e880-41ff-452f-b6d5-d650b610c1e3",
+  "serialNumber": "urn:uuid:e3f520e3-aef6-496a-bac7-9d3b4f98bc49",
   "version": 1,
   "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
   "bomFormat": "CycloneDX",
