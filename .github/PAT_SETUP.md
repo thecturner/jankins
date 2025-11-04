@@ -78,9 +78,9 @@ You should see:
 ## Troubleshooting
 
 ### Token not working
-- Verify token has correct permissions (Actions: write, Contents: write)
+- Verify token has correct permissions (Actions: Read and write, Contents: Read and write)
 - Verify token is scoped to the `jankins` repository
-- Verify secret name is exactly `PAT_TOKEN`
+- Verify secret name is exactly `PAT_TOKEN` (case-sensitive)
 
 ### Workflow still failing
 - Check workflow logs: `gh run view --log`
