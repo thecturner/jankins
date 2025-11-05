@@ -5,12 +5,14 @@
 [![PyPI version](https://img.shields.io/pypi/v/jankins.svg)](https://pypi.org/project/jankins/)
 [![Python versions](https://img.shields.io/pypi/pyversions/jankins.svg)](https://pypi.org/project/jankins/)
 [![License](https://img.shields.io/pypi/l/jankins.svg)](https://github.com/thecturner/jankins/blob/master/LICENSE)
-[![CI](https://github.com/thecturner/jankins/workflows/CI/badge.svg)](https://github.com/thecturner/jankins/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/thecturner/jankins/branch/master/graph/badge.svg)](https://codecov.io/gh/thecturner/jankins)
-[![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
-[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
-[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/XXXXX/badge)](https://bestpractices.coreinfrastructure.org/projects/XXXXX)
+
+**CI/CD Pipeline:** [![CI](https://github.com/thecturner/jankins/workflows/CI/badge.svg)](https://github.com/thecturner/jankins/actions/workflows/ci.yml) [![Semantic Release](https://github.com/thecturner/jankins/workflows/Semantic%20Release/badge.svg)](https://github.com/thecturner/jankins/actions/workflows/semantic-release.yml) [![Release](https://github.com/thecturner/jankins/workflows/Release/badge.svg)](https://github.com/thecturner/jankins/actions/workflows/release.yml) [![SBOM](https://github.com/thecturner/jankins/workflows/Generate%20SBOM/badge.svg)](https://github.com/thecturner/jankins/actions/workflows/sbom.yml)
+
+**Code Quality:** [![codecov](https://codecov.io/gh/thecturner/jankins/branch/master/graph/badge.svg)](https://codecov.io/gh/thecturner/jankins) [![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit) [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+**Security & Compliance:** [![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/XXXXX/badge)](https://bestpractices.coreinfrastructure.org/projects/XXXXX)
+
+> 📖 **See [WORKFLOWS.md](WORKFLOWS.md) for complete CI/CD pipeline documentation and flow diagrams**
 
 jankins provides MCP-compliant access to Jenkins with features designed for AI coding assistants:
 
