@@ -12,7 +12,7 @@
 
 **Security & Compliance:** [![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev) [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/XXXXX/badge)](https://bestpractices.coreinfrastructure.org/projects/XXXXX)
 
-> 📖 **See [WORKFLOWS.md](WORKFLOWS.md) for complete CI/CD pipeline documentation and flow diagrams**
+> 📖 **Documentation:** [Quick Start](QUICKSTART.md) • [Workflows](WORKFLOWS.md) • [Tools Reference](TOOLS_REFERENCE.md) • [Contributing](CONTRIBUTING.md) • [Security](SECURITY.md)
 
 jankins provides MCP-compliant access to Jenkins with features designed for AI coding assistants:
 
@@ -25,38 +25,20 @@ jankins provides MCP-compliant access to Jenkins with features designed for AI c
 
 ## Quick Start
 
-### Installation
-
 ```bash
-pip install -e .
-```
+# 1. Install
+pip install jankins
 
-### Basic Usage
-
-```bash
-# Set environment variables
+# 2. Set credentials
 export JENKINS_URL=https://jenkins.example.com
 export JENKINS_USER=myuser
-export JENKINS_API_TOKEN=11234567890abcdef1234567890abcdef
+export JENKINS_API_TOKEN=your-token-here
 
-# Start the server
+# 3. Start server
 jankins
-
-# Or use CLI flags
-jankins --jenkins-url https://jenkins.example.com \
-        --jenkins-user myuser \
-        --jenkins-token $TOKEN \
-        --bind 0.0.0.0:8080
 ```
 
-### Generate Jenkins API Token
-
-1. Log in to Jenkins
-2. Click your username (top right) → Configure
-3. Scroll to "API Token" section
-4. Click "Add new Token"
-5. Give it a name and click "Generate"
-6. Copy the token (you won't see it again!)
+**👉 See [QUICKSTART.md](QUICKSTART.md) for detailed setup, MCP client configuration, and usage examples.**
 
 ## Configuration
 
