@@ -332,16 +332,16 @@
     },
     {
       "bom-ref": "requirements-L22",
-      "description": "requirements line 22: -e git+https://github.com/thecturner/jankins@2b5dc50f368361b92555369fd823ac966e325e58#egg=jankins",
+      "description": "requirements line 22: -e git+https://github.com/thecturner/jankins@e683f54e0c2b26d2382414d0bbc1e6930085cd43#egg=jankins",
       "externalReferences": [
         {
           "comment": "explicit dist url",
           "type": "vcs",
-          "url": "git+https://github.com/thecturner/jankins@2b5dc50f368361b92555369fd823ac966e325e58#egg=jankins"
+          "url": "git+https://github.com/thecturner/jankins@e683f54e0c2b26d2382414d0bbc1e6930085cd43#egg=jankins"
         }
       ],
       "name": "jankins",
-      "purl": "pkg:pypi/jankins?vcs_url=git%2Bhttps://github.com/thecturner/jankins%402b5dc50f368361b92555369fd823ac966e325e58%23egg%3Djankins",
+      "purl": "pkg:pypi/jankins?vcs_url=git%2Bhttps://github.com/thecturner/jankins%40e683f54e0c2b26d2382414d0bbc1e6930085cd43%23egg%3Djankins",
       "type": "library"
     },
     {
@@ -601,7 +601,7 @@
     },
     {
       "bom-ref": "requirements-L40",
-      "description": "requirements line 40: pydantic==2.12.3",
+      "description": "requirements line 40: pydantic==2.12.4",
       "externalReferences": [
         {
           "comment": "implicit dist url",
@@ -610,9 +610,9 @@
         }
       ],
       "name": "pydantic",
-      "purl": "pkg:pypi/pydantic@2.12.3",
+      "purl": "pkg:pypi/pydantic@2.12.4",
       "type": "library",
-      "version": "2.12.3"
+      "version": "2.12.4"
     },
     {
       "bom-ref": "requirements-L41",
@@ -631,7 +631,7 @@
     },
     {
       "bom-ref": "requirements-L42",
-      "description": "requirements line 42: pydantic_core==2.41.4",
+      "description": "requirements line 42: pydantic_core==2.41.5",
       "externalReferences": [
         {
           "comment": "implicit dist url",
@@ -640,9 +640,9 @@
         }
       ],
       "name": "pydantic_core",
-      "purl": "pkg:pypi/pydantic-core@2.41.4",
+      "purl": "pkg:pypi/pydantic-core@2.41.5",
       "type": "library",
-      "version": "2.41.4"
+      "version": "2.41.5"
     },
     {
       "bom-ref": "requirements-L44",
@@ -1281,7 +1281,7 @@
     }
   ],
   "metadata": {
-    "timestamp": "2025-11-04T14:22:25.782270+00:00",
+    "timestamp": "2025-11-06T03:13:46.518097+00:00",
     "tools": {
       "components": [
         {
@@ -1385,7 +1385,7 @@
       ]
     }
   },
-  "serialNumber": "urn:uuid:0a80415c-67d7-4264-9e60-5247aee9f7b3",
+  "serialNumber": "urn:uuid:d68db256-2afc-424d-a755-0b72afa0ffe5",
   "version": 1,
   "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
   "bomFormat": "CycloneDX",
